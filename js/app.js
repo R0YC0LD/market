@@ -400,6 +400,13 @@ async function onScannerDetected(code) {
   closeModal("scannerModal");
   if (scannerTarget === "form") {
     productBarcodeInput.value = code;
+    if (isBarcodeTaken(code, editingProductId)) {
+      showToast(`⚠️ Bu barkod (${code}) zaten başka bir ürüne kayıtlı.`, "error", 3200);
+    } else {
+      showToast(`✅ Barkod tanındı: ${code}`, "success", 1800);
+      if (navigator.vibrate) navigator.vibrate(35);
+      productNameInput.focus();
+    }
   } else {
     handleBarcodeScanned(code);
   }
@@ -484,6 +491,9 @@ function openProductModalForAdd() {
   photoPlaceholder.classList.remove("hidden");
   productFormError.classList.add("hidden");
   openModal("productModal");
+  // Yeni ürün eklenirken barkodu otomatik tanıması için kamera hemen açılır.
+  // Kamera/izin yoksa kullanıcı barkodu elle yazabilir (tarayıcı X ile kapatılabilir).
+  openScanner("form");
 }
 
 function openProductModalForEdit(product) {
