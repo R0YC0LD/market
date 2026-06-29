@@ -1,0 +1,42 @@
+============================================================
+ÇAKIR BÜFE - FIREBASE STORAGE GÜVENLİK KURALLARI
+============================================================
+NOT: Sistem şu anda ürün fotoğraflarını doğrudan Firestore
+veritabanında (sıkıştırılmış olarak) saklıyor, yani Firebase
+Storage'ı ZORUNLU OLARAK kullanmıyor. Bu sayede ek bir kurulum
+ya da ücretli (Blaze) plana geçme gerekliliği yok.
+
+Bu dosya, ileride "daha yüksek çözünürlüklü fotoğraf" veya
+başka bir dosya yükleme özelliği eklemek isterseniz hazır
+bekleyen bir güvenlik kuralı olarak verilmiştir. Storage'ı
+etkinleştirmediyseniz bu adımı atlayabilirsiniz, sistem mevcut
+haliyle sorunsuz çalışır.
+
+STORAGE'I ETKİNLEŞTİRMEK İSTERSENİZ:
+1. https://console.firebase.google.com adresinden projenize girin.
+2. Sol menüden Build > Storage > "Get started" deyin
+   (Google bu adımda bir ödeme/fatura hesabı - Blaze planı - isteyebilir;
+   küçük kullanım miktarlarında ücretsiz kotalar yeterlidir, kredi kartı
+   eklemeniz istense de aşmadığınız sürece ücret alınmaz).
+3. Üstteki "Rules" sekmesine geçin.
+4. Aşağıdaki "====== KURAL METNİ ======" bölümünün TAMAMINI kopyalayıp
+   yapıştırın ve "Publish" butonuna basın.
+============================================================
+
+====== KURAL METNİ (BURADAN KOPYALAYIN) ======
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /{allPaths=**} {
+      // Okuma: sadece giriş yapmış (büfe sahibi) kullanıcı.
+      allow read: if request.auth != null;
+
+      // Yazma: giriş yapmış kullanıcı + sadece görsel dosya + 5MB'tan küçük.
+      allow write: if request.auth != null
+                    && request.resource.size < 5 * 1024 * 1024
+                    && request.resource.contentType.matches('image/.*');
+    }
+  }
+}
+====== KURAL METNİ SONU ======

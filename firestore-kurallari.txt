@@ -1,0 +1,44 @@
+============================================================
+ÇAKIR BÜFE - FIRESTORE GÜVENLİK KURALLARI
+============================================================
+Bu sistemde tek bir yetkili kullanıcı (büfe sahibi) bulunur.
+Bu nedenle kural basittir: veriye sadece giriş yapmış (auth)
+kullanıcı erişebilir. Giriş yapmamış hiç kimse - site adresini
+veya Firebase ayarlarını bilse dahi - verileri okuyamaz/değiştiremez.
+
+NASIL UYGULANIR:
+1. https://console.firebase.google.com adresinden projenize girin.
+2. Sol menüden Build > Firestore Database > Rules sekmesine girin.
+3. Aşağıdaki "====== KURAL METNİ ======" ile başlayan ve biten
+   bölümün TAMAMINI kopyalayıp oradaki kutuya yapıştırın.
+4. "Publish" butonuna basın.
+============================================================
+
+====== KURAL METNİ (BURADAN KOPYALAYIN) ======
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Ürünler: ad, fiyat, stok, barkod, fotoğraf
+    match /products/{productId} {
+      allow read, write: if request.auth != null;
+    }
+
+    // Satışlar: her satış işlemi (ürünler, toplam, ödeme yöntemi)
+    match /sales/{saleId} {
+      allow read, write: if request.auth != null;
+    }
+
+    // Stok hareketleri (giriş/çıkış geçmişi - denetim amaçlı)
+    match /stockLogs/{logId} {
+      allow read, write: if request.auth != null;
+    }
+
+    // Tanımlanmamış başka bir koleksiyona varsayılan olarak erişim kapalı.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
+====== KURAL METNİ SONU ======

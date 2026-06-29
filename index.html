@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#1f8a6e">
+<title>Çakır Büfe | Yönetim Sistemi</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🛒</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- ============ GİRİŞ EKRANI ============ -->
+<div id="loginView" class="view login-view">
+  <div class="login-card">
+    <div class="login-logo">🛒</div>
+    <h1>Çakır Büfe</h1>
+    <p class="login-sub">Yönetim Sistemi</p>
+    <form id="loginForm" autocomplete="off">
+      <label class="field">
+        <span>Kullanıcı Adı</span>
+        <input type="text" id="loginUsername" autocomplete="username" required>
+      </label>
+      <label class="field">
+        <span>Şifre</span>
+        <input type="password" id="loginPassword" autocomplete="current-password" required>
+      </label>
+      <div id="loginError" class="error-msg hidden"></div>
+      <button type="submit" class="btn btn-primary btn-block" id="loginBtn">Giriş Yap</button>
+    </form>
+    <p class="login-foot">Çakır Büfe için özel olarak hazırlanmıştır</p>
+  </div>
+</div>
+
+<!-- ============ UYGULAMA ============ -->
+<div id="appView" class="view app-view hidden">
+
+  <header class="app-header">
+    <div class="app-title">🛒 <span>Çakır Büfe</span></div>
+    <div class="header-actions">
+      <span id="connStatus" class="conn-status" title="Bağlantı durumu">●</span>
+      <button id="logoutBtn" class="icon-btn" title="Çıkış Yap">⏻</button>
+    </div>
+  </header>
+
+  <main class="app-main">
+
+    <!-- ---- SATIŞ EKRANI ---- -->
+    <section id="view-satis" class="screen">
+      <div class="screen-head">
+        <h2>Satış Ekranı</h2>
+      </div>
+
+      <div class="scan-row">
+        <input type="text" id="barcodeInput" class="scan-input" placeholder="🔍 Barkod okutun veya yazıp Enter'a basın" autocomplete="off" inputmode="numeric">
+        <button id="cameraScanBtn" class="btn btn-secondary btn-icon" title="Kamera ile barkod tara">📷</button>
+      </div>
+
+      <div class="search-row">
+        <input type="text" id="productSearchInput" class="text-input" placeholder="Ürün adı ile ara...">
+      </div>
+
+      <div id="productGrid" class="product-grid"></div>
+
+      <div class="cart-panel" id="cartPanel">
+        <div class="cart-head">
+          <h3>Sepet</h3>
+          <button id="clearCartBtn" class="link-btn">Sepeti Boşalt</button>
+        </div>
+        <div id="cartItems" class="cart-items">
+          <p class="empty-hint">Sepet boş. Barkod okutun veya üründen seçin.</p>
+        </div>
+        <div class="cart-total-row">
+          <span>Toplam</span>
+          <strong id="cartTotal">0,00 ₺</strong>
+        </div>
+        <div class="pay-method-row">
+          <button class="pay-btn" data-method="nakit" id="payNakitBtn">💵 Nakit</button>
+          <button class="pay-btn" data-method="kart" id="payKartBtn">💳 Kart</button>
+        </div>
+        <button id="completeSaleBtn" class="btn btn-primary btn-block btn-lg" disabled>Satışı Tamamla</button>
+      </div>
+    </section>
+
+    <!-- ---- STOK EKRANI ---- -->
+    <section id="view-stok" class="screen hidden">
+      <div class="screen-head">
+        <h2>Ürünler &amp; Stok</h2>
+        <button id="addProductBtn" class="btn btn-primary btn-sm">+ Yeni Ürün</button>
+      </div>
+      <div class="search-row">
+        <input type="text" id="stockSearchInput" class="text-input" placeholder="Ürün adı veya barkod ile ara...">
+      </div>
+      <div id="stockList" class="stock-list"></div>
+    </section>
+
+    <!-- ---- GEÇMİŞ EKRANI ---- -->
+    <section id="view-gecmis" class="screen hidden">
+      <div class="screen-head">
+        <h2>Satış Geçmişi</h2>
+      </div>
+      <div class="date-row">
+        <input type="date" id="historyDate" class="text-input">
+      </div>
+      <div id="historyList" class="history-list"></div>
+    </section>
+
+    <!-- ---- RAPOR EKRANI ---- -->
+    <section id="view-rapor" class="screen hidden">
+      <div class="screen-head">
+        <h2>Satış Raporu</h2>
+      </div>
+      <div class="report-tabs">
+        <button class="report-tab active" data-period="daily">Günlük</button>
+        <button class="report-tab" data-period="weekly">Haftalık</button>
+        <button class="report-tab" data-period="monthly">Aylık</button>
+      </div>
+      <div id="reportSummary" class="report-summary"></div>
+      <div id="reportTable" class="report-table-wrap"></div>
+      <button id="downloadReportBtn" class="btn btn-primary btn-block">⬇ TXT Olarak İndir</button>
+    </section>
+
+  </main>
+
+  <nav class="bottom-nav">
+    <button class="nav-btn active" data-view="satis"><span class="nav-ic">🛒</span><span>Satış</span></button>
+    <button class="nav-btn" data-view="stok"><span class="nav-ic">📦</span><span>Stok</span></button>
+    <button class="nav-btn" data-view="gecmis"><span class="nav-ic">🧾</span><span>Geçmiş</span></button>
+    <button class="nav-btn" data-view="rapor"><span class="nav-ic">📊</span><span>Rapor</span></button>
+  </nav>
+</div>
+
+<!-- ============ ÜRÜN EKLE/DÜZENLE MODAL ============ -->
+<div id="productModal" class="modal-overlay hidden">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h3 id="productModalTitle">Yeni Ürün</h3>
+      <button class="modal-close" data-close="productModal">✕</button>
+    </div>
+    <form id="productForm">
+      <input type="hidden" id="productId">
+      <div class="photo-pick-row">
+        <img id="productPhotoPreview" class="photo-preview" src="" alt="">
+        <div class="photo-pick-placeholder" id="photoPlaceholder">📷</div>
+        <label class="btn btn-secondary btn-sm file-btn">
+          Fotoğraf Seç
+          <input type="file" id="productPhotoInput" accept="image/*" hidden>
+        </label>
+      </div>
+      <label class="field">
+        <span>Ürün Adı</span>
+        <input type="text" id="productName" required>
+      </label>
+      <label class="field">
+        <span>Fiyat (₺)</span>
+        <input type="number" id="productPrice" min="0" step="0.01" required>
+      </label>
+      <label class="field">
+        <span>Stok Adedi</span>
+        <input type="number" id="productStock" min="0" step="1" required>
+      </label>
+      <label class="field">
+        <span>Barkod</span>
+        <div class="barcode-field-row">
+          <input type="text" id="productBarcode" inputmode="numeric" placeholder="Barkod numarası" required>
+          <button type="button" id="productCameraScanBtn" class="btn btn-secondary btn-icon" title="Kamera ile tara">📷</button>
+        </div>
+      </label>
+      <div id="productFormError" class="error-msg hidden"></div>
+      <div class="modal-actions">
+        <button type="button" id="deleteProductBtn" class="btn btn-danger hidden">Sil</button>
+        <button type="submit" class="btn btn-primary">Kaydet</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ============ STOK DÜZELT MODAL ============ -->
+<div id="stockAdjustModal" class="modal-overlay hidden">
+  <div class="modal-box modal-box-sm">
+    <div class="modal-head">
+      <h3>Stok Düzelt</h3>
+      <button class="modal-close" data-close="stockAdjustModal">✕</button>
+    </div>
+    <p id="stockAdjustProductName" class="muted"></p>
+    <div class="pay-method-row">
+      <button type="button" class="pay-btn" data-dir="in" id="dirInBtn">➕ Giriş</button>
+      <button type="button" class="pay-btn" data-dir="out" id="dirOutBtn">➖ Çıkış</button>
+    </div>
+    <div class="stock-adjust-row">
+      <button type="button" id="stockMinusBtn" class="adjust-btn">−</button>
+      <input type="number" id="stockAdjustAmount" value="1" min="1" step="1">
+      <button type="button" id="stockPlusBtn" class="adjust-btn">+</button>
+    </div>
+    <select id="stockAdjustReason" class="text-input">
+      <option value="Yeni sevkiyat">Yeni sevkiyat</option>
+      <option value="Sayım düzeltmesi">Sayım düzeltmesi</option>
+      <option value="Fire/Bozulma">Fire / Bozulma</option>
+      <option value="Diğer">Diğer</option>
+    </select>
+    <button id="confirmStockAdjustBtn" class="btn btn-primary btn-block">Uygula</button>
+  </div>
+</div>
+
+<!-- ============ KAMERA TARAYICI MODAL ============ -->
+<div id="scannerModal" class="modal-overlay hidden">
+  <div class="modal-box modal-box-sm">
+    <div class="modal-head">
+      <h3>Barkod Tara</h3>
+      <button class="modal-close" data-close="scannerModal">✕</button>
+    </div>
+    <div id="scannerView" class="scanner-view"></div>
+    <p class="muted small">Barkodu kamera çerçevesine getirin.</p>
+  </div>
+</div>
+
+<!-- ============ ONAY MODAL ============ -->
+<div id="confirmModal" class="modal-overlay hidden">
+  <div class="modal-box modal-box-sm">
+    <p id="confirmModalText"></p>
+    <div class="modal-actions">
+      <button id="confirmModalCancel" class="btn btn-secondary">Vazgeç</button>
+      <button id="confirmModalOk" class="btn btn-danger">Onayla</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ TOAST ============ -->
+<div id="toastContainer" class="toast-container"></div>
+
+<!-- ============ YÜKLENİYOR ============ -->
+<div id="loadingOverlay" class="loading-overlay hidden">
+  <div class="spinner"></div>
+</div>
+
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+<script type="module" src="js/app.js"></script>
+</body>
+</html>
