@@ -24,4 +24,4 @@ export const firebaseConfig = {
 // oluşturmanız ve şifresini "çakırsuluova" olarak ayarlamanız gerekir.
 // Detaylar README.md içindedir.
 export const OWNER_LOGIN_USERNAME = "admin";
-export const OWNER_LOGIN_EMAIL = "admin";
+export const OWNER_LOGIN_EMAIL = "admin@gmail.com";
