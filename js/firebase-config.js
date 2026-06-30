@@ -23,5 +23,5 @@ export const firebaseConfig = {
 // Firebase Authentication > Users kısmında BU e-posta ile bir kullanıcı
 // oluşturmanız ve şifresini "çakırsuluova" olarak ayarlamanız gerekir.
 // Detaylar README.md içindedir.
-export const OWNER_LOGIN_USERNAME = "çakır";
-export const OWNER_LOGIN_EMAIL = "cakir@cakirbufe.com";
+export const OWNER_LOGIN_USERNAME = "admin";
+export const OWNER_LOGIN_EMAIL = "admin";
