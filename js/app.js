@@ -1,4 +1,3 @@
-import { autoLogin, onAuthChange } from "./auth.js";
 import {
   initProductsListener,
   subscribeProducts,
@@ -43,8 +42,6 @@ import {
 } from "./utils.js";
 
 // ---------------- DOM REFERANSLARI ----------------
-const loginView = document.getElementById("loginView");
-const appView = document.getElementById("appView");
 const connStatus = document.getElementById("connStatus");
 
 const navBtns = document.querySelectorAll(".nav-btn");
@@ -140,21 +137,11 @@ function parseLocalDateInputValue(str) {
 }
 
 // ================================================================
-// OTOMATİK GİRİŞ
+// BAŞLANGIÇ
 // ================================================================
-onAuthChange((user) => {
-  if (user) {
-    loginView.classList.add("hidden");
-    appView.classList.remove("hidden");
-    historyDateInput.value = toLocalDateInputValue(new Date());
-    if (!unsubProducts) {
-      unsubProducts = initProductsListener((err) => showToast(friendlyError(err), "error"));
-    }
-    setView("satis");
-  } else {
-    autoLogin().catch(() => showToast("Bağlantı kurulamadı, sayfayı yenileyin.", "error"));
-  }
-});
+historyDateInput.value = toLocalDateInputValue(new Date());
+unsubProducts = initProductsListener((err) => showToast(friendlyError(err), "error"));
+setView("satis");
 
 subscribeProducts((products) => {
   currentProducts = products;
