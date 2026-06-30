@@ -1,4 +1,4 @@
-import { login, logout, onAuthChange } from "./auth.js";
+import { autoLogin, onAuthChange } from "./auth.js";
 import {
   initProductsListener,
   subscribeProducts,
@@ -45,12 +45,6 @@ import {
 // ---------------- DOM REFERANSLARI ----------------
 const loginView = document.getElementById("loginView");
 const appView = document.getElementById("appView");
-const loginForm = document.getElementById("loginForm");
-const loginUsername = document.getElementById("loginUsername");
-const loginPassword = document.getElementById("loginPassword");
-const loginBtn = document.getElementById("loginBtn");
-const loginError = document.getElementById("loginError");
-const logoutBtn = document.getElementById("logoutBtn");
 const connStatus = document.getElementById("connStatus");
 
 const navBtns = document.querySelectorAll(".nav-btn");
@@ -146,49 +140,19 @@ function parseLocalDateInputValue(str) {
 }
 
 // ================================================================
-// GİRİŞ / ÇIKIŞ
+// OTOMATİK GİRİŞ
 // ================================================================
-loginForm.addEventListener("submit", async (e) => {
-  e.preventDefault();
-  loginError.classList.add("hidden");
-  loginBtn.disabled = true;
-  loginBtn.textContent = "Giriş yapılıyor...";
-  try {
-    await login(loginUsername.value, loginPassword.value);
-  } catch (err) {
-    loginError.textContent = friendlyError(err);
-    loginError.classList.remove("hidden");
-  } finally {
-    loginBtn.disabled = false;
-    loginBtn.textContent = "Giriş Yap";
-  }
-});
-
-logoutBtn.addEventListener("click", async () => {
-  const ok = await confirmDialog("Çıkış yapmak istediğinize emin misiniz?");
-  if (!ok) return;
-  await logout();
-});
-
 onAuthChange((user) => {
   if (user) {
     loginView.classList.add("hidden");
     appView.classList.remove("hidden");
-    loginForm.reset();
     historyDateInput.value = toLocalDateInputValue(new Date());
-
     if (!unsubProducts) {
       unsubProducts = initProductsListener((err) => showToast(friendlyError(err), "error"));
     }
     setView("satis");
   } else {
-    appView.classList.add("hidden");
-    loginView.classList.remove("hidden");
-    if (unsubProducts) { unsubProducts(); unsubProducts = null; }
-    if (unsubHistory) { unsubHistory(); unsubHistory = null; }
-    clearCart();
-    selectedPaymentMethod = null;
-    currentProducts = [];
+    autoLogin().catch(() => showToast("Bağlantı kurulamadı, sayfayı yenileyin.", "error"));
   }
 });
 

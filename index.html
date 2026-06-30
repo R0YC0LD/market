@@ -13,27 +13,8 @@
 </head>
 <body>
 
-<!-- ============ GİRİŞ EKRANI ============ -->
-<div id="loginView" class="view login-view">
-  <div class="login-card">
-    <div class="login-logo">🛒</div>
-    <h1>Çakır Büfe</h1>
-    <p class="login-sub">Yönetim Sistemi</p>
-    <form id="loginForm" autocomplete="off">
-      <label class="field">
-        <span>Kullanıcı Adı</span>
-        <input type="text" id="loginUsername" autocomplete="username" required>
-      </label>
-      <label class="field">
-        <span>Şifre</span>
-        <input type="password" id="loginPassword" autocomplete="current-password" required>
-      </label>
-      <div id="loginError" class="error-msg hidden"></div>
-      <button type="submit" class="btn btn-primary btn-block" id="loginBtn">Giriş Yap</button>
-    </form>
-    <p class="login-foot">Çakır Büfe için özel olarak hazırlanmıştır</p>
-  </div>
-</div>
+<!-- Giriş ekranı kaldırıldı -->
+<div id="loginView" class="hidden"></div>
 
 <!-- ============ UYGULAMA ============ -->
 <div id="appView" class="view app-view hidden">
@@ -42,7 +23,6 @@
     <div class="app-title">🛒 <span>Çakır Büfe</span></div>
     <div class="header-actions">
       <span id="connStatus" class="conn-status" title="Bağlantı durumu">●</span>
-      <button id="logoutBtn" class="icon-btn" title="Çıkış Yap">⏻</button>
     </div>
   </header>
 
