@@ -19,9 +19,4 @@ export const firebaseConfig = {
   measurementId: "G-DCDL33HQ0M"
 };
 
-// Giriş ekranındaki "Kullanıcı Adı" alanı bu sabit e-postaya eşlenir.
-// Firebase Authentication > Users kısmında BU e-posta ile bir kullanıcı
-// oluşturmanız ve şifresini "çakırsuluova" olarak ayarlamanız gerekir.
-// Detaylar README.md içindedir.
-export const OWNER_LOGIN_USERNAME = "admin";
-export const OWNER_LOGIN_EMAIL = "admin@cakirbufe.com";
+// Giriş gerektirmiyor — site açılır açılmaz direkt panele gelinir.

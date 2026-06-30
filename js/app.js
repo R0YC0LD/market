@@ -42,7 +42,7 @@ import {
 } from "./utils.js";
 
 // ---------------- DOM REFERANSLARI ----------------
-const connStatus = document.getElementById("connStatus");
+const connStatus = document.getElementById("connStatus"); // <span class="conn-dot">
 
 const navBtns = document.querySelectorAll(".nav-btn");
 const screens = document.querySelectorAll(".screen");
@@ -142,6 +142,8 @@ function parseLocalDateInputValue(str) {
 historyDateInput.value = toLocalDateInputValue(new Date());
 unsubProducts = initProductsListener((err) => showToast(friendlyError(err), "error"));
 setView("satis");
+renderProductGrid();
+renderCart();
 
 subscribeProducts((products) => {
   currentProducts = products;
@@ -175,7 +177,7 @@ function updateConnStatus() {
     connStatus.title = "Bağlı";
   } else {
     connStatus.classList.add("offline");
-    connStatus.title = "Çevrimdışı - değişiklikler bağlantı gelince gönderilecek";
+    connStatus.title = "Çevrimdışı — veriler bağlantı gelince senkronize edilir";
   }
 }
 window.addEventListener("online", updateConnStatus);
