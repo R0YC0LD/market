@@ -1,23 +1,22 @@
 package com.fuse9.puzzle
 
 /**
- * What the player sees is a name; underneath, each tier is a contract with the generator:
+ * What the player sees is a (localised) name; underneath, each tier is a contract with the generator:
  * which techniques may be required, how sparse the opening board can get, and what the
  * graded score must land in.
  */
 enum class Difficulty(
-    val label: String,
     val maxLevel: Int,
     /** Generator stops removing givens below this many. */
     val minGivens: Int,
     /** Accepted score range (inclusive). */
     val scoreRange: IntRange,
 ) {
-    EASY("Easy", 1, 34, 0..140),
-    MEDIUM("Medium", 2, 27, 95..200),
-    HARD("Hard", 3, 23, 150..280),
-    EXPERT("Expert", 4, 19, 220..400),
-    MASTER("Master", 4, 0, 250..10_000);
+    EASY(1, 34, 0..140),
+    MEDIUM(2, 27, 95..200),
+    HARD(3, 23, 150..280),
+    EXPERT(4, 19, 220..400),
+    MASTER(4, 0, 250..10_000);
 
     val techniques: Set<Technique> get() = Technique.upTo(maxLevel)
 }

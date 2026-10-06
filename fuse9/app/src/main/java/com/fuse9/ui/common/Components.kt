@@ -34,6 +34,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.fuse9.ui.theme.FuseText
 import com.fuse9.ui.theme.LocalPalette
+import com.fuse9.ui.i18n.LocalStrings
 
 /** Click without Material ripples: FUSE9 answers taps with its own motion and sound. */
 @Composable
@@ -81,7 +82,7 @@ fun Hairline(modifier: Modifier = Modifier, width: Dp = 28.dp) {
 fun ScreenHeader(title: String, onBack: () -> Unit) {
     val p = LocalPalette.current
     Row(Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
-        IconButtonQuiet(FuseIcons.Back, "Back", onClick = onBack)
+        IconButtonQuiet(FuseIcons.Back, LocalStrings.current.back, onClick = onBack)
         Spacer(Modifier.width(4.dp))
         Text(title, style = FuseText.Heading, color = p.ink)
     }
@@ -144,13 +145,14 @@ fun Segmented(options: List<String>, selected: Int, onSelect: (Int) -> Unit) {
 fun FuseSlider(value: Float, label: String, onChange: (Float) -> Unit) {
     val p = LocalPalette.current
     val change = androidx.compose.runtime.rememberUpdatedState(onChange)
+    val percentText = LocalStrings.current.percent((value * 100).toInt())
     Canvas(
         Modifier
             .fillMaxWidth()
             .height(36.dp)
             .semantics {
                 contentDescription = label
-                stateDescription = "${(value * 100).toInt()} percent"
+                stateDescription = percentText
                 setProgress { v -> change.value(v.coerceIn(0f, 1f)); true }
             }
             .pointerInput(Unit) {

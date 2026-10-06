@@ -37,7 +37,7 @@ class TutorialGuideTest {
             if (h.action == HintAction.SEAL) apply(Action.SealAt(h.cell)) else apply(Action.Select(h.cell), Action.Digit(h.digit))
         }
         assertEquals(TutorialGuide.Step.DIGIT_LINK, guide.step)
-        assertTrue(guide.line(s)!!.text.contains("different digit"))
+        assertEquals(TutorialGuide.Kind.DIGIT_LINK, guide.line(s)!!.kind)
         assertEquals(0, s.mistakes)
     }
 }

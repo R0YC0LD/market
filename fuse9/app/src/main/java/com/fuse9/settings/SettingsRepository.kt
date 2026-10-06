@@ -7,6 +7,9 @@ import kotlinx.coroutines.flow.StateFlow
 enum class ThemeChoice { SYSTEM, LIGHT, DARK }
 enum class CountStyle { PIPS, NUMERALS }
 
+/** SYSTEM follows the device (or Android 13+ per-app) language. */
+enum class AppLanguage { SYSTEM, TURKISH, ENGLISH }
+
 data class Settings(
     val sound: Boolean = true,
     val sfxVolume: Float = 0.8f,
@@ -17,6 +20,7 @@ data class Settings(
     val autoCleanNotes: Boolean = true,
     val highlightSameDigit: Boolean = true,
     val showTimer: Boolean = true,
+    val language: AppLanguage = AppLanguage.SYSTEM,
 )
 
 class SettingsRepository(context: Context) {
@@ -34,6 +38,7 @@ class SettingsRepository(context: Context) {
         autoCleanNotes = prefs.getBoolean("autoCleanNotes", true),
         highlightSameDigit = prefs.getBoolean("highlightSameDigit", true),
         showTimer = prefs.getBoolean("showTimer", true),
+        language = runCatching { AppLanguage.valueOf(prefs.getString("language", null) ?: "SYSTEM") }.getOrDefault(AppLanguage.SYSTEM),
     )
 
     fun update(transform: (Settings) -> Settings) {
@@ -49,6 +54,7 @@ class SettingsRepository(context: Context) {
             .putBoolean("autoCleanNotes", s.autoCleanNotes)
             .putBoolean("highlightSameDigit", s.highlightSameDigit)
             .putBoolean("showTimer", s.showTimer)
+            .putString("language", s.language.name)
             .apply()
     }
 }

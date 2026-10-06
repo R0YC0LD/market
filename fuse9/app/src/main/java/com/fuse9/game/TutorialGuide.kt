@@ -10,7 +10,16 @@ import com.fuse9.puzzle.Grid
 class TutorialGuide {
     enum class Step { LOOK, FIRST_PLACE, MORE, DIGIT_LINK, DONE, OFF }
 
-    data class Line(val text: String, val cells: Set<Int> = emptySet(), val target: Int = -1)
+    enum class Kind { LOOK, PLACE_PROVEN, PLACE_BECAUSE, DEFUSE, NINE_SEALS, OPENS, DIGIT_LINK, DONE }
+
+    /** One guide line: what to say ([kind], [reasons], [digit]) and which cells to point at. */
+    data class Line(
+        val kind: Kind,
+        val cells: Set<Int> = emptySet(),
+        val target: Int = -1,
+        val digit: Int = 0,
+        val reasons: List<Reason> = emptyList(),
+    )
 
     var step: Step = Step.LOOK
         private set
@@ -43,24 +52,22 @@ class TutorialGuide {
         return when (step) {
             Step.LOOK -> {
                 val example = (0 until Grid.CELLS).firstOrNull { state.cells[it].status == CellStatus.GIVEN && state.truth.clues[it] > 0 }
-                Line("Open cells show a digit. The dots say how many seals touch them.", setOfNotNull(example))
+                Line(Kind.LOOK, setOfNotNull(example))
             }
             Step.FIRST_PLACE, Step.MORE -> {
                 val sealHint = if (step == Step.MORE) HintEngine.find(state, prefer = HintAction.SEAL)?.takeIf { it.action == HintAction.SEAL } else null
                 when {
-                    sealHint != null -> Line("${sealHint.reason} Hold the cell to defuse it.", sealHint.focus.toSet(), sealHint.cell)
-                    step == Step.MORE && placements >= 2 -> Line("Nine seals: one in every row, column and box. Watch the dots.")
-                    hint != null && hint.action == HintAction.PLACE && step == Step.FIRST_PLACE -> {
-                        val why = if (state.cells[hint.cell].safe) "Dashed cells are proven safe." else hint.reason.substringBefore(". ") + "."
-                        Line("$why Only ${hint.digit} fits the marked one — place it.", hint.focus.toSet(), hint.cell)
-                    }
-                    hint != null && hint.action == HintAction.PLACE -> Line("Placing a digit opens the cell and shows its dots.")
+                    sealHint != null -> Line(Kind.DEFUSE, sealHint.focus.toSet(), sealHint.cell, reasons = sealHint.reasons)
+                    step == Step.MORE && placements >= 2 -> Line(Kind.NINE_SEALS)
+                    hint != null && hint.action == HintAction.PLACE && step == Step.FIRST_PLACE ->
+                        if (state.cells[hint.cell].safe) Line(Kind.PLACE_PROVEN, hint.focus.toSet(), hint.cell, hint.digit)
+                        else Line(Kind.PLACE_BECAUSE, hint.focus.toSet(), hint.cell, hint.digit, hint.reasons.take(1))
+                    hint != null && hint.action == HintAction.PLACE -> Line(Kind.OPENS)
                     else -> null
                 }
             }
-            Step.DIGIT_LINK -> Line("That seal hid a $sealedDigit. Each seal hides a different digit — so every other $sealedDigit is safe.",
-                (0 until Grid.CELLS).filter { state.cells[it].status.isSeal }.toSet())
-            Step.DONE -> Line("That's the whole idea. The rest is yours.")
+            Step.DIGIT_LINK -> Line(Kind.DIGIT_LINK, (0 until Grid.CELLS).filter { state.cells[it].status.isSeal }.toSet(), digit = sealedDigit)
+            Step.DONE -> Line(Kind.DONE)
             Step.OFF -> null
         }
     }

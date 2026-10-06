@@ -34,6 +34,7 @@ import com.fuse9.ui.common.quietClick
 import com.fuse9.ui.game.formatTime
 import com.fuse9.ui.theme.FuseText
 import com.fuse9.ui.theme.LocalPalette
+import com.fuse9.ui.i18n.LocalStrings
 
 data class MenuInfo(val saved: GameState?, val dailyDone: Boolean, val dailyLabel: String, val streak: Int)
 
@@ -49,6 +50,7 @@ fun MenuScreen(
     onRules: () -> Unit,
 ) {
     val p = LocalPalette.current
+    val t = LocalStrings.current
     var picking by rememberSaveable { mutableStateOf(false) }
     Column(
         Modifier.fillMaxSize().background(p.page).statusBarsPadding().navigationBarsPadding().padding(horizontal = 32.dp),
@@ -59,31 +61,31 @@ fun MenuScreen(
         Spacer(Modifier.height(18.dp))
         Text("FUSE9", style = FuseText.Title, color = p.ink)
         Spacer(Modifier.height(4.dp))
-        Text("Sudoku, with nine sealed cells", style = FuseText.Small, color = p.inkSoft)
+        Text(t.tagline, style = FuseText.Small, color = p.inkSoft)
         Spacer(Modifier.weight(0.7f))
 
         info.saved?.let { s ->
-            MenuItem("Continue", "${s.puzzle.difficulty.label} · ${formatTime(s.elapsedMillis)} · ${s.sealsFound}/9 seals", emphasis = true, onClick = onContinue)
+            MenuItem(t.continueGame, t.continueDetail(s.puzzle.difficulty, formatTime(s.elapsedMillis), s.sealsFound), emphasis = true, onClick = onContinue)
         }
-        MenuItem("New Puzzle", emphasis = info.saved == null, onClick = { picking = !picking })
+        MenuItem(t.newPuzzle, emphasis = info.saved == null, onClick = { picking = !picking })
         AnimatedVisibility(picking, enter = expandVertically() + fadeIn(), exit = shrinkVertically() + fadeOut()) {
             Row(Modifier.fillMaxWidth().padding(bottom = 8.dp), horizontalArrangement = Arrangement.SpaceEvenly) {
                 for (d in Difficulty.entries) {
                     Text(
-                        d.label, style = FuseText.Small, color = p.accent,
-                        modifier = Modifier.quietClick(label = "New ${d.label} puzzle") { picking = false; onNew(d) }.padding(horizontal = 4.dp, vertical = 8.dp),
+                        t.difficulty(d), style = FuseText.Small, color = p.accent,
+                        modifier = Modifier.quietClick(label = t.newPuzzleOf(d)) { picking = false; onNew(d) }.padding(horizontal = 4.dp, vertical = 8.dp),
                     )
                 }
             }
         }
         Spacer(Modifier.height(10.dp)); Hairline(); Spacer(Modifier.height(10.dp))
-        MenuItem("Daily", if (info.dailyDone) "Done today${if (info.streak > 0) " · streak ${info.streak}" else ""}" else info.dailyLabel, onClick = onDaily)
-        MenuItem("Modes", onClick = onModes)
+        MenuItem(t.daily, if (info.dailyDone) t.doneToday(info.streak) else info.dailyLabel, onClick = onDaily)
+        MenuItem(t.modes, onClick = onModes)
         Spacer(Modifier.height(10.dp)); Hairline(); Spacer(Modifier.height(10.dp))
-        MenuItem("Stats", onClick = onStats)
-        MenuItem("Settings", onClick = onSettings)
+        MenuItem(t.stats, onClick = onStats)
+        MenuItem(t.settings, onClick = onSettings)
         Spacer(Modifier.weight(1f))
-        Text("How to play", style = FuseText.Small, color = p.inkSoft, modifier = Modifier.quietClick(label = "How to play", onClick = onRules).padding(12.dp))
+        Text(t.howToPlay, style = FuseText.Small, color = p.inkSoft, modifier = Modifier.quietClick(label = t.howToPlay, onClick = onRules).padding(12.dp))
         Spacer(Modifier.height(8.dp))
     }
 }

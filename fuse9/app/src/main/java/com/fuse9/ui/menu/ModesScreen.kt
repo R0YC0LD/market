@@ -26,28 +26,30 @@ import com.fuse9.ui.common.ScreenHeader
 import com.fuse9.ui.common.quietClick
 import com.fuse9.ui.theme.FuseText
 import com.fuse9.ui.theme.LocalPalette
+import com.fuse9.ui.i18n.LocalStrings
 
 @Composable
 fun ModesScreen(onBack: () -> Unit, onStart: (GameMode, Difficulty) -> Unit) {
     val p = LocalPalette.current
+    val t = LocalStrings.current
     var open by rememberSaveable { mutableStateOf<GameMode?>(null) }
     Column(Modifier.fillMaxSize().background(p.page).statusBarsPadding().navigationBarsPadding()) {
-        ScreenHeader("Modes", onBack)
+        ScreenHeader(t.modes, onBack)
         Column(Modifier.padding(horizontal = 28.dp)) {
             for (mode in GameMode.entries.filter { it != GameMode.DAILY }) {
                 Column(
                     Modifier.fillMaxWidth().alpha(if (mode.available) 1f else 0.38f)
-                        .quietClick(enabled = mode.available, label = mode.label) { open = if (open == mode) null else mode }
+                        .quietClick(enabled = mode.available, label = t.mode(mode)) { open = if (open == mode) null else mode }
                         .padding(vertical = 14.dp),
                 ) {
-                    Text(mode.label, style = FuseText.Item, color = p.ink)
+                    Text(t.mode(mode), style = FuseText.Item, color = p.ink)
                     Spacer(Modifier.height(2.dp))
-                    Text(mode.description, style = FuseText.Small, color = p.inkSoft)
+                    Text(t.modeDescription(mode), style = FuseText.Small, color = p.inkSoft)
                     if (open == mode) {
                         Row(Modifier.fillMaxWidth().padding(top = 10.dp), horizontalArrangement = Arrangement.SpaceBetween) {
                             for (d in Difficulty.entries) Text(
-                                d.label, style = FuseText.Small, color = p.accent,
-                                modifier = Modifier.quietClick(label = "${mode.label} ${d.label}") { onStart(mode, d) }.padding(vertical = 6.dp),
+                                t.difficulty(d), style = FuseText.Small, color = p.accent,
+                                modifier = Modifier.quietClick(label = "${t.mode(mode)} ${t.difficulty(d)}") { onStart(mode, d) }.padding(vertical = 6.dp),
                             )
                         }
                     }

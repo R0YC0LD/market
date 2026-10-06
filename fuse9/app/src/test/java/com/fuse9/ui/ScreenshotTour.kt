@@ -31,6 +31,8 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
 import java.io.File
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 
 /**
  * Renders key screens to PNG for visual review (no device needed).
@@ -168,5 +170,40 @@ class ScreenshotTour {
         vm.onCellTap(other); vm.onDigit(1)
         compose.mainClock.advanceTimeBy(200)
         shot("12_trip_200ms")
+    }
+
+    /** Turkish pass over the screens with the most text. */
+    @Test fun turkish() {
+        app.settings.update { it.copy(language = com.fuse9.settings.AppLanguage.TURKISH) }
+        try {
+            val vm = GameViewModel(app)
+            app.saves.saveBlocking(midGame())
+            vm.start(com.fuse9.ui.game.StartRequest.Continue)
+            var screen by androidx.compose.runtime.mutableStateOf(0)
+            compose.setContent {
+                FuseTheme(app.settings.settings.value) {
+                    when (screen) {
+                        0 -> GameScreen(vm, app.settings.settings.value) {}
+                        1 -> SettingsScreen(app.settings.settings.value, {}, {})
+                        2 -> RulesScreen {}
+                        else -> MenuScreen(MenuInfo(midGame(), false, "Salı · Orta", 4), {}, {}, {}, {}, {}, {}, {})
+                    }
+                }
+            }
+            compose.waitUntil(5_000) { vm.ui.value.game != null }
+            compose.mainClock.autoAdvance = false
+            vm.onHint(); vm.onHint()
+            compose.mainClock.advanceTimeBy(400)
+            shot("13_tr_game_hint")
+            compose.mainClock.autoAdvance = true
+            vm.onHint() // apply, stops the pulse
+            for ((i, name) in listOf(1 to "14_tr_settings", 2 to "15_tr_rules", 3 to "16_tr_menu")) {
+                screen = i
+                compose.mainClock.advanceTimeBy(500)
+                shot(name)
+            }
+        } finally {
+            app.settings.update { it.copy(language = com.fuse9.settings.AppLanguage.SYSTEM) }
+        }
     }
 }

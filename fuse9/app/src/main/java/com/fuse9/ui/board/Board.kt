@@ -45,6 +45,8 @@ import com.fuse9.settings.CountStyle
 import com.fuse9.ui.theme.FuseFonts
 import com.fuse9.ui.theme.FusePalette
 import com.fuse9.ui.theme.LocalPalette
+import com.fuse9.ui.i18n.LocalStrings
+import com.fuse9.ui.i18n.Strings
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
@@ -144,10 +146,11 @@ private fun BoardSurface(
     tap: (Int) -> Unit, press: (Int) -> Unit, channels: Channels, glyphCache: GlyphCache, tm: TextMeasurer,
     density: Density, palette: FusePalette, modifier: Modifier,
 ) {
+    val strings = LocalStrings.current
     Spacer(
         modifier
             .aspectRatio(1f)
-            .semantics { contentDescription = describe(state) }
+            .semantics { contentDescription = describe(state, strings) }
             .pointerInput(Unit) {
                 fun cellAt(o: Offset): Int? {
                     val pad = size.width * PAD
@@ -178,16 +181,16 @@ private fun BoardSurface(
 private const val PAD = 0.012f
 private const val LONG_PRESS_MS = 520L
 
-private fun describe(state: GameState): String {
+private fun describe(state: GameState, t: Strings): String {
     val c = state.selected
-    if (c < 0) return "FUSE9 board, ${state.sealsFound} of 9 seals found"
+    if (c < 0) return t.boardSummary(state.sealsFound)
     val cell = state.cells[c]
-    val where = "row ${Grid.row(c) + 1}, column ${Grid.col(c) + 1}"
+    val where = t.cellAt(Grid.row(c) + 1, Grid.col(c) + 1)
     return when (cell.status) {
-        CellStatus.HIDDEN -> "$where, hidden" + (if (cell.safe) ", proven safe" else "") + (if (cell.suspect) ", marked suspect" else "")
-        CellStatus.SEALED -> "$where, defused seal, digit ${state.digitAt(c)}"
-        CellStatus.TRIPPED -> "$where, tripped seal, digit ${state.digitAt(c)}"
-        else -> "$where, digit ${state.digitAt(c)}, ${state.countAt(c)} seals adjacent"
+        CellStatus.HIDDEN -> listOfNotNull(where, t.hidden, t.provenSafe.takeIf { cell.safe }, t.markedSuspect.takeIf { cell.suspect }).joinToString(", ")
+        CellStatus.SEALED -> "$where, ${t.defusedSeal(state.digitAt(c))}"
+        CellStatus.TRIPPED -> "$where, ${t.trippedSeal(state.digitAt(c))}"
+        else -> "$where, ${t.openCell(state.digitAt(c), state.countAt(c))}"
     }
 }
 

@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.dp
 import com.fuse9.ui.common.quietClick
 import com.fuse9.ui.theme.FuseText
 import com.fuse9.ui.theme.LocalPalette
+import com.fuse9.ui.i18n.LocalStrings
 
 /** ~850 ms: a square draws itself, nine cells settle in, the centre locks. Tap skips. */
 @Composable
@@ -36,7 +37,7 @@ fun Splash(onDone: () -> Unit) {
         t.animateTo(1f, tween(850, easing = LinearEasing))
         done()
     }
-    Box(Modifier.fillMaxSize().background(p.page).quietClick(label = "Skip") { done() }, contentAlignment = Alignment.Center) {
+    Box(Modifier.fillMaxSize().background(p.page).quietClick(label = LocalStrings.current.skip) { done() }, contentAlignment = Alignment.Center) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             LogoMark(t.value, Modifier.size(84.dp))
             Spacer(Modifier.height(22.dp))

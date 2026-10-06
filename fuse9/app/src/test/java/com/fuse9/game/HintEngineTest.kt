@@ -21,7 +21,7 @@ class HintEngineTest {
                 hint!!
                 // A hint must always be correct.
                 assertEquals(s.truth.isSeal[hint.cell], hint.action == HintAction.SEAL)
-                assertTrue(hint.reason.isNotBlank())
+                assertTrue(hint.reasons.isNotEmpty())
                 assertTrue(hint.region.isNotEmpty())
                 s = if (hint.action == HintAction.SEAL) engine.play(s, Action.SealAt(hint.cell)).state
                 else engine.play(s, Action.Select(hint.cell), Action.Digit(hint.digit)).state

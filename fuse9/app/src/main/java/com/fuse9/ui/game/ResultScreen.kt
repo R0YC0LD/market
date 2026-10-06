@@ -39,6 +39,7 @@ import com.fuse9.ui.common.Hairline
 import com.fuse9.ui.common.MenuItem
 import com.fuse9.ui.theme.FuseText
 import com.fuse9.ui.theme.LocalPalette
+import com.fuse9.ui.i18n.LocalStrings
 
 /**
  * The board tells the story: a miniature replays the solve in the order it happened, then the
@@ -47,6 +48,7 @@ import com.fuse9.ui.theme.LocalPalette
 @Composable
 fun ResultScreen(state: GameState, dailyStreak: Int, onNext: () -> Unit, onMenu: () -> Unit) {
     val p = LocalPalette.current
+    val t = LocalStrings.current
     val summary = remember(state) { Scoring.summarize(state) }
     val replay = remember { Animatable(0f) }
     val reveal = remember { Animatable(0f) }
@@ -63,9 +65,9 @@ fun ResultScreen(state: GameState, dailyStreak: Int, onNext: () -> Unit, onMenu:
         Spacer(Modifier.height(22.dp))
         MiniReplay(state, replay.value)
         Spacer(Modifier.height(28.dp))
-        Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.semantics { contentDescription = "${summary.verdict.word}. ${summary.verdict.line}" }) {
-            Text(summary.verdict.word, style = FuseText.Word, color = if (summary.verdict == Verdict.UNSOLVED) p.inkSoft else p.ink, modifier = Modifier.padding(bottom = 2.dp))
-            Text(summary.verdict.line, style = FuseText.Small, color = p.inkSoft)
+        Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.semantics { contentDescription = "${t.verdict(summary.verdict)}. ${t.verdictLine(summary.verdict)}" }) {
+            Text(t.verdict(summary.verdict), style = FuseText.Word, color = if (summary.verdict == Verdict.UNSOLVED) p.inkSoft else p.ink, modifier = Modifier.padding(bottom = 2.dp))
+            Text(t.verdictLine(summary.verdict), style = FuseText.Small, color = p.inkSoft)
         }
         Spacer(Modifier.height(16.dp))
         Marks(summary.marks, reveal.value)
@@ -73,21 +75,21 @@ fun ResultScreen(state: GameState, dailyStreak: Int, onNext: () -> Unit, onMenu:
         Text(formatTime(summary.millis), style = FuseText.Heading, color = p.ink)
         Spacer(Modifier.height(6.dp))
         val parts = buildList {
-            add("${state.sealsFound} of 9 seals")
-            add(if (summary.mistakes == 1) "1 strike" else "${summary.mistakes} strikes")
-            if (summary.hints > 0) add(if (summary.hints == 1) "1 hint" else "${summary.hints} hints")
-            if (summary.ripples > 0) add("${summary.ripples} ripples")
+            add(t.sealsOfNine(state.sealsFound))
+            add(t.strikeCount(summary.mistakes))
+            if (summary.hints > 0) add(t.hintCount(summary.hints))
+            if (summary.ripples > 0) add(t.rippleCount(summary.ripples))
         }
         Text(parts.joinToString("  ·  "), style = FuseText.Small, color = p.inkSoft)
         if (state.mode == GameMode.DAILY && dailyStreak > 0) {
             Spacer(Modifier.height(6.dp))
-            Text("Daily streak  $dailyStreak", style = FuseText.Small, color = p.accent)
+            Text(t.dailyStreak(dailyStreak), style = FuseText.Small, color = p.accent)
         }
         Spacer(Modifier.weight(1f))
         Hairline()
         Spacer(Modifier.height(8.dp))
-        MenuItem(if (state.mode == GameMode.DAILY) "Another board" else "Next board", emphasis = true, onClick = onNext)
-        MenuItem("Menu", onClick = onMenu)
+        MenuItem(if (state.mode == GameMode.DAILY) t.anotherBoard else t.nextBoard, emphasis = true, onClick = onNext)
+        MenuItem(t.menu, onClick = onMenu)
         Spacer(Modifier.height(16.dp))
     }
 }
@@ -134,7 +136,8 @@ private fun MiniReplay(state: GameState, t: Float) {
 @Composable
 private fun Marks(n: Int, t: Float) {
     val p = LocalPalette.current
-    Row(horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.semantics { contentDescription = "$n of 5 marks" }) {
+    val label = LocalStrings.current.marks(n)
+    Row(horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.semantics { contentDescription = label }) {
         for (i in 0 until 5) {
             val on = i < n
             val local = ((t * 5f) - i).coerceIn(0f, 1f)

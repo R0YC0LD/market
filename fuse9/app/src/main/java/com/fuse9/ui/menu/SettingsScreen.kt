@@ -18,7 +18,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.fuse9.BuildConfig
+import com.fuse9.settings.AppLanguage
 import com.fuse9.settings.CountStyle
+import com.fuse9.ui.i18n.LocalStrings
 import com.fuse9.settings.Settings
 import com.fuse9.settings.ThemeChoice
 import com.fuse9.ui.common.ScreenHeader
@@ -31,38 +33,42 @@ import com.fuse9.ui.theme.LocalPalette
 @Composable
 fun SettingsScreen(settings: Settings, onChange: ((Settings) -> Settings) -> Unit, onBack: () -> Unit) {
     val p = LocalPalette.current
+    val t = LocalStrings.current
     Column(Modifier.fillMaxSize().background(p.page).statusBarsPadding().navigationBarsPadding()) {
-        ScreenHeader("Settings", onBack)
+        ScreenHeader(t.settings, onBack)
         Column(Modifier.padding(horizontal = 28.dp).verticalScroll(rememberScrollState())) {
-            Section("Sound & touch")
-            Toggle("Sound", settings.sound) { v -> onChange { it.copy(sound = v) } }
-            if (settings.sound) {
-                FuseSlider(settings.sfxVolume, label = "Sound volume") { v -> onChange { it.copy(sfxVolume = v) } }
-            }
-            Toggle("Haptics", settings.haptics) { v -> onChange { it.copy(haptics = v) } }
+            Section(t.language)
+            Segmented(t.languageOptions, settings.language.ordinal) { i -> onChange { it.copy(language = AppLanguage.entries[i]) } }
 
-            Section("Look")
-            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                Text("Theme", style = FuseText.Body, color = p.ink, modifier = Modifier.weight(1f))
-                Segmented(listOf("System", "Paper", "Graphite"), settings.theme.ordinal) { i -> onChange { it.copy(theme = ThemeChoice.entries[i]) } }
+            Section(t.soundAndTouch)
+            Toggle(t.sound, settings.sound) { v -> onChange { it.copy(sound = v) } }
+            if (settings.sound) {
+                FuseSlider(settings.sfxVolume, label = t.soundVolume) { v -> onChange { it.copy(sfxVolume = v) } }
             }
-            Toggle("High contrast", settings.highContrast) { v -> onChange { it.copy(highContrast = v) } }
+            Toggle(t.haptics, settings.haptics) { v -> onChange { it.copy(haptics = v) } }
+
+            Section(t.lookSection)
+            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                Text(t.theme, style = FuseText.Body, color = p.ink, modifier = Modifier.weight(1f))
+                Segmented(t.themeOptions, settings.theme.ordinal) { i -> onChange { it.copy(theme = ThemeChoice.entries[i]) } }
+            }
+            Toggle(t.highContrast, settings.highContrast) { v -> onChange { it.copy(highContrast = v) } }
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                 Column(Modifier.weight(1f)) {
-                    Text("Seal counts", style = FuseText.Body, color = p.ink)
-                    Text("How open cells show nearby seals", style = FuseText.Small, color = p.inkSoft)
+                    Text(t.sealCounts, style = FuseText.Body, color = p.ink)
+                    Text(t.sealCountsNote, style = FuseText.Small, color = p.inkSoft)
                 }
-                Segmented(listOf("Dots", "Numbers"), settings.countStyle.ordinal) { i -> onChange { it.copy(countStyle = CountStyle.entries[i]) } }
+                Segmented(t.countOptions, settings.countStyle.ordinal) { i -> onChange { it.copy(countStyle = CountStyle.entries[i]) } }
             }
 
-            Section("Play")
-            Toggle("Clear notes automatically", settings.autoCleanNotes, "Remove a digit from notes when it is placed nearby") { v -> onChange { it.copy(autoCleanNotes = v) } }
-            Toggle("Highlight matching digits", settings.highlightSameDigit) { v -> onChange { it.copy(highlightSameDigit = v) } }
-            Toggle("Show timer", settings.showTimer) { v -> onChange { it.copy(showTimer = v) } }
+            Section(t.playSection)
+            Toggle(t.autoClean, settings.autoCleanNotes, t.autoCleanNote) { v -> onChange { it.copy(autoCleanNotes = v) } }
+            Toggle(t.highlightMatching, settings.highlightSameDigit) { v -> onChange { it.copy(highlightSameDigit = v) } }
+            Toggle(t.showTimer, settings.showTimer) { v -> onChange { it.copy(showTimer = v) } }
 
             Spacer(Modifier.height(28.dp))
             Text("FUSE9 ${BuildConfig.VERSION_NAME}", style = FuseText.Small, color = p.inkFaint)
-            Text("Typefaces: Manrope, Fraunces (SIL Open Font License)", style = FuseText.Small, color = p.inkFaint)
+            Text(t.fontsCredit, style = FuseText.Small, color = p.inkFaint)
             Spacer(Modifier.height(24.dp))
         }
     }
@@ -72,6 +78,6 @@ fun SettingsScreen(settings: Settings, onChange: ((Settings) -> Settings) -> Uni
 private fun Section(title: String) {
     val p = LocalPalette.current
     Spacer(Modifier.height(18.dp))
-    Text(title.uppercase(), style = FuseText.Label, color = p.inkSoft)
+    Text(LocalStrings.current.upper(title), style = FuseText.Label, color = p.inkSoft)
     Spacer(Modifier.height(4.dp))
 }

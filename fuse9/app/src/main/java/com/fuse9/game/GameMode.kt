@@ -7,23 +7,12 @@ import kotlinx.serialization.Serializable
  * [mistakeLimit] of 0 means unlimited.
  */
 @Serializable
-enum class GameMode(val label: String, val mistakeLimit: Int, val countsForStreak: Boolean, val available: Boolean) {
-    CLASSIC("Classic", 3, false, true),
-    DAILY("Daily", 3, true, true),
-    HARDCORE("Hardcore", 1, false, true),
-    ZEN("Zen", 0, false, true),
-    TIME_PRESSURE("Time Pressure", 3, false, false),
-    ENDLESS("Endless", 3, false, false),
-    CUSTOM("Custom", 3, false, false);
-
-    val description: String
-        get() = when (this) {
-            CLASSIC -> "Three strikes. The standard board."
-            DAILY -> "One board for everyone, every day."
-            HARDCORE -> "A single strike ends the board."
-            ZEN -> "No strike limit. No clock pressure."
-            TIME_PRESSURE -> "Coming later."
-            ENDLESS -> "Coming later."
-            CUSTOM -> "Coming later."
-        }
+enum class GameMode(val mistakeLimit: Int, val countsForStreak: Boolean, val available: Boolean) {
+    CLASSIC(3, false, true),
+    DAILY(3, true, true),
+    HARDCORE(1, false, true),
+    ZEN(0, false, true),
+    TIME_PRESSURE(3, false, false),
+    ENDLESS(3, false, false),
+    CUSTOM(3, false, false),
 }

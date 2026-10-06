@@ -27,20 +27,20 @@ import com.fuse9.ui.common.ScreenHeader
 import com.fuse9.ui.theme.FusePalette
 import com.fuse9.ui.theme.FuseText
 import com.fuse9.ui.theme.LocalPalette
+import com.fuse9.ui.i18n.LocalStrings
 
 /** Four rules, each with a tiny drawing. That's the whole manual. */
 @Composable
 fun RulesScreen(onBack: () -> Unit) {
     val p = LocalPalette.current
+    val t = LocalStrings.current
+    val drawings: List<DrawScope.(FusePalette) -> Unit> = listOf({ grid(it) }, { seals(it) }, { dots(it) }, { link(it) })
     Column(Modifier.fillMaxSize().background(p.page).statusBarsPadding().navigationBarsPadding()) {
-        ScreenHeader("How to play", onBack)
+        ScreenHeader(t.howToPlay, onBack)
         Column(Modifier.padding(horizontal = 28.dp).verticalScroll(rememberScrollState())) {
-            Rule("Fill the grid like Sudoku.", "Every row, column and box holds 1 to 9 once.") { grid(it) }
-            Rule("Nine cells are seals.", "Exactly one in every row, every column and every box.") { seals(it) }
-            Rule("Dots count seals.", "An open cell shows how many seals touch it, diagonals included.") { dots(it) }
-            Rule("Each seal hides a different digit.", "Find the 4-seal, and every other 4 is safe. Defusing a seal shows its digit.") { link(it) }
+            t.rules.forEachIndexed { i, (title, body) -> Rule(title, body, drawings[i]) }
             Spacer(Modifier.height(10.dp))
-            Text("To open a cell, place its digit. To defuse a seal, hold the cell or press the seal key. A wrong move is a strike — and shows you the truth about that cell.", style = FuseText.Body, color = p.inkSoft)
+            Text(t.rulesFooter, style = FuseText.Body, color = p.inkSoft)
             Spacer(Modifier.height(24.dp))
         }
     }

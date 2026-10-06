@@ -56,6 +56,8 @@ import com.fuse9.ui.common.Toggle
 import com.fuse9.ui.common.quietClick
 import com.fuse9.ui.theme.FuseText
 import com.fuse9.ui.theme.LocalPalette
+import com.fuse9.ui.i18n.LocalStrings
+import com.fuse9.ui.i18n.Strings
 
 @Composable
 fun GameScreen(vm: GameViewModel, settings: Settings, onExit: () -> Unit) {
@@ -108,25 +110,26 @@ fun GameScreen(vm: GameViewModel, settings: Settings, onExit: () -> Unit) {
 @Composable
 private fun Header(vm: GameViewModel, game: GameState?, settings: Settings, paused: Boolean, onExit: () -> Unit) {
     val p = LocalPalette.current
+    val t = LocalStrings.current
     val clock by vm.clock.collectAsStateWithLifecycle()
     Row(Modifier.fillMaxWidth().padding(horizontal = 6.dp, vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
-        IconButtonQuiet(FuseIcons.Back, "Back to menu", onClick = onExit)
+        IconButtonQuiet(FuseIcons.Back, t.backToMenu, onClick = onExit)
         Column(Modifier.weight(1f).padding(start = 4.dp)) {
             if (game != null) {
-                Text(game.puzzle.difficulty.label, style = FuseText.Numeric, color = p.ink)
+                Text(t.difficulty(game.puzzle.difficulty), style = FuseText.Numeric, color = p.ink)
                 val mode = when {
-                    game.tutorial -> "First board"
+                    game.tutorial -> t.firstBoard
                     game.mode == GameMode.CLASSIC -> null
-                    else -> game.mode.label
+                    else -> t.mode(game.mode)
                 }
-                if (mode != null) Text(mode.uppercase(), style = FuseText.Label, color = p.inkSoft)
+                if (mode != null) Text(t.upper(mode), style = FuseText.Label, color = p.inkSoft)
             }
         }
         if (game != null) {
             StrikeMarks(game.mistakes, game.mode.mistakeLimit)
             Spacer(Modifier.width(14.dp))
             Row(
-                Modifier.quietClick(label = if (paused) "Resume" else "Pause") { if (paused) vm.resume() else vm.pause() }.padding(8.dp),
+                Modifier.quietClick(label = if (paused) t.resume else t.pause) { if (paused) vm.resume() else vm.pause() }.padding(8.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 if (settings.showTimer) {
@@ -154,8 +157,9 @@ private fun SealTracker(game: GameState?) {
         if (st == CellStatus.TRIPPED) found[game.truth.solution[c]] = 2
     }
     val count = found.count { it > 0 }
+    val sealsLabel = LocalStrings.current.sealsFound(count)
     Row(
-        Modifier.height(TRACKER_HEIGHT).semantics { contentDescription = "$count of 9 seals found" },
+        Modifier.height(TRACKER_HEIGHT).semantics { contentDescription = sealsLabel },
         horizontalArrangement = Arrangement.spacedBy(7.dp), verticalAlignment = Alignment.CenterVertically,
     ) {
         for (d in 1..9) {
@@ -182,8 +186,9 @@ private fun SealTracker(game: GameState?) {
 }
 
 @Composable
-private fun Caption(text: String?) {
+private fun Caption(caption: Caption?) {
     val p = LocalPalette.current
+    val text = caption?.let { LocalStrings.current.caption(it) }
     Box(Modifier.fillMaxWidth().height(CAPTION_HEIGHT).padding(horizontal = 20.dp, vertical = 4.dp), contentAlignment = Alignment.Center) {
         AnimatedContent(text, transitionSpec = { fadeIn(tween(160)) togetherWith fadeOut(tween(120)) }, label = "caption") { t ->
             if (t != null) Text(
@@ -197,11 +202,11 @@ private fun Caption(text: String?) {
 @Composable
 private fun PauseVeil(onResume: () -> Unit) {
     val p = LocalPalette.current
-    Box(Modifier.fillMaxSize().quietClick(label = "Resume", onClick = onResume), contentAlignment = Alignment.Center) {
+    Box(Modifier.fillMaxSize().quietClick(label = LocalStrings.current.resume, onClick = onResume), contentAlignment = Alignment.Center) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text("Paused", style = FuseText.Heading, color = p.ink)
+            Text(LocalStrings.current.paused, style = FuseText.Heading, color = p.ink)
             Spacer(Modifier.height(6.dp))
-            Text("Tap to continue", style = FuseText.Small, color = p.inkSoft)
+            Text(LocalStrings.current.tapToContinue, style = FuseText.Small, color = p.inkSoft)
         }
     }
 }
@@ -209,7 +214,7 @@ private fun PauseVeil(onResume: () -> Unit) {
 @Composable
 fun Preparing() {
     val p = LocalPalette.current
-    Text("Preparing a board…", style = FuseText.Small, color = p.inkSoft)
+    Text(LocalStrings.current.preparing, style = FuseText.Small, color = p.inkSoft)
 }
 
 @Composable
@@ -230,7 +235,7 @@ private fun DebugPanel(vm: GameViewModel, ui: GameUi) {
                 "id" to pz.id,
                 "seed" to pz.seed.toString(),
                 "generator" to "v${pz.generatorVersion}",
-                "difficulty" to "${pz.difficulty.label}  score ${pz.score}  max level ${pz.maxLevel}",
+                "difficulty" to "${pz.difficulty.name.lowercase()}  score ${pz.score}  max level ${pz.maxLevel}",
                 "givens" to pz.givens.size.toString(),
                 "solver steps" to pz.solverSteps.toString(),
                 "generation" to "${pz.generationMillis} ms",
@@ -253,6 +258,12 @@ private fun DebugPanel(vm: GameViewModel, ui: GameUi) {
 
 private val TRACKER_HEIGHT = 26.dp
 private val CAPTION_HEIGHT = 66.dp
+
+fun Strings.caption(c: Caption): String = when (c) {
+    is Caption.LookHere -> look(c.look)
+    is Caption.Because -> reasons(c.reasons)
+    is Caption.Guide -> guide(c.line)
+}
 
 fun formatTime(ms: Long): String {
     val total = ms / 1000

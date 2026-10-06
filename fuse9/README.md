@@ -29,6 +29,19 @@ Rule 4 links the two halves. Without it the seals would just decorate a Sudoku. 
 - Knowing which digits are already sealed tells you which cells are safe.
   The tracker above the board shows those digits.
 
+## Language
+
+English and Turkish. Settings → Language offers **System / Türkçe / English** and switches
+instantly. *System* follows the device language. On Android 13+ it also follows the per-app
+language picked in system settings (`res/xml/locales_config.xml`).
+
+All text lives in `ui/i18n/Strings.kt`, one object per language. The rules layer never builds
+sentences. Hints and the tutorial return structured reasons (`Why`, `Look`, `TutorialGuide.Kind`
+with unit, cell and digit), and each language words them itself. Turkish uses this for case
+endings ("4. satıra", "5. kutunun", "1. sütunda"). `StringsTest` checks that every phrase exists
+in both languages and that hint lines from real solves fit the caption area. To add a language,
+add another `Strings` object and list it in `AppLanguage`.
+
 ## Build & run
 
 Requirements: JDK 17+, Android SDK with platform 36.
@@ -56,6 +69,7 @@ Requirements: JDK 17+, Android SDK with platform 36.
 | `TutorialGuideTest` | the first-board guide points at real moves and reaches the seal lesson |
 | `SaveRepositoryTest` | full save/load round trip, corrupt save, atomic write |
 | `StatsRepositoryTest` | best/average times, daily streak rules |
+| `StringsTest` | every phrase in both languages, Turkish case endings and İ, real hint and tutorial lines fit the caption |
 | `SfxSynthTest` | every sound is short, unclipped, starts and ends silent, and renders the same every time |
 | `AppFlowTest` (Robolectric) | real app: first launch → teaching board → defuse → place → menu offers Continue |
 

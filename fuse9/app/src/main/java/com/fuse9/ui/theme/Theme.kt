@@ -12,6 +12,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import com.fuse9.settings.Settings
 import com.fuse9.settings.ThemeChoice
+import com.fuse9.ui.i18n.LocalStrings
+import com.fuse9.ui.i18n.stringsFor
+import androidx.compose.ui.platform.LocalConfiguration
 
 object FuseText {
     val Title = TextStyle(fontFamily = FuseFonts.Serif, fontWeight = FontWeight(400), fontSize = 44.sp, letterSpacing = 1.sp)
@@ -40,7 +43,8 @@ fun FuseTheme(settings: Settings, content: @Composable () -> Unit) {
         primary = palette.accent, background = palette.page, surface = palette.board,
         onBackground = palette.ink, onSurface = palette.ink, onPrimary = palette.page,
     )
-    CompositionLocalProvider(LocalPalette provides palette) {
+    val strings = stringsFor(settings.language, LocalConfiguration.current.locales[0])
+    CompositionLocalProvider(LocalPalette provides palette, LocalStrings provides strings) {
         MaterialTheme(colorScheme = scheme, typography = Typography(bodyLarge = FuseText.Body), content = content)
     }
 }

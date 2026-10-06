@@ -44,6 +44,7 @@ import com.fuse9.ui.common.FuseIcons
 import com.fuse9.ui.theme.FuseFonts
 import com.fuse9.ui.theme.FuseText
 import com.fuse9.ui.theme.LocalPalette
+import com.fuse9.ui.i18n.LocalStrings
 
 /** A press-responsive surface: sinks slightly while held. No ripples. */
 @Composable
@@ -82,20 +83,22 @@ fun ToolRow(
     onSeal: () -> Unit,
     onHint: () -> Unit,
 ) {
+    val t = LocalStrings.current
     Row(Modifier.fillMaxWidth().padding(horizontal = 8.dp), horizontalArrangement = Arrangement.SpaceEvenly) {
-        Tool(FuseIcons.Undo, "Undo", onClick = onUndo)
-        Tool(FuseIcons.Erase, "Erase", onClick = onErase)
-        Tool(FuseIcons.Notes, "Notes", active = inputMode == InputMode.NOTES, onClick = onNotes)
-        Tool(FuseIcons.Seal, if (inputMode == InputMode.NOTES) "Suspect" else "Seal", primary = true, onClick = onSeal)
-        Tool(FuseIcons.Hint, "Hint", dots = hintLevel, onClick = onHint)
+        Tool(FuseIcons.Undo, t.undo, onClick = onUndo)
+        Tool(FuseIcons.Erase, t.erase, onClick = onErase)
+        Tool(FuseIcons.Notes, t.notes, active = inputMode == InputMode.NOTES, onClick = onNotes)
+        Tool(FuseIcons.Seal, if (inputMode == InputMode.NOTES) t.suspect else t.seal, primary = true, onClick = onSeal)
+        Tool(FuseIcons.Hint, t.hint, dots = hintLevel, onClick = onHint)
     }
 }
 
 @Composable
 private fun Tool(icon: ImageVector, label: String, active: Boolean = false, primary: Boolean = false, dots: Int = 0, onClick: () -> Unit) {
     val p = LocalPalette.current
+    val t = LocalStrings.current
     val tint = if (active || primary) p.accent else p.ink
-    Pressable(Modifier.size(width = 64.dp, height = 58.dp), label, state = if (active) "on" else null, onClick = onClick) {
+    Pressable(Modifier.size(width = 68.dp, height = 58.dp), label, state = if (active) t.on else null, onClick = onClick) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Box(Modifier.size(34.dp), contentAlignment = Alignment.Center) {
                 if (primary) Canvas(Modifier.size(34.dp)) { drawCircle(p.accentSoft) }
@@ -103,7 +106,7 @@ private fun Tool(icon: ImageVector, label: String, active: Boolean = false, prim
             }
             Spacer(Modifier.height(1.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(label.uppercase(), style = FuseText.Label.copy(fontSize = 9.sp), color = if (active) p.accent else p.inkSoft)
+                Text(t.upper(label), maxLines = 1, style = FuseText.Label.copy(fontSize = 9.sp, letterSpacing = 0.9.sp), color = if (active) p.accent else p.inkSoft)
             }
             Canvas(Modifier.size(width = 22.dp, height = 3.dp)) {
                 if (active) drawRect(p.accent)
@@ -116,14 +119,15 @@ private fun Tool(icon: ImageVector, label: String, active: Boolean = false, prim
 @Composable
 fun DigitPad(inputMode: InputMode, remaining: IntArray, highlight: Int, onDigit: (Int) -> Unit) {
     val p = LocalPalette.current
+    val t = LocalStrings.current
     val notes = inputMode == InputMode.NOTES
     Row(Modifier.fillMaxWidth().padding(horizontal = 6.dp), horizontalArrangement = Arrangement.spacedBy(2.dp)) {
         for (d in 1..9) {
             val left = remaining[d]
             val done = left == 0
             Pressable(
-                Modifier.weight(1f).height(64.dp).alpha(if (done) 0.28f else 1f), "Digit $d",
-                state = if (done) "complete" else "$left left", onClick = { onDigit(d) },
+                Modifier.weight(1f).height(64.dp).alpha(if (done) 0.28f else 1f), t.digitKey(d),
+                state = if (done) t.digitComplete else t.digitsLeft(left), onClick = { onDigit(d) },
             ) {
                 Column(Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
                     if (notes) {
@@ -155,11 +159,12 @@ fun DigitPad(inputMode: InputMode, remaining: IntArray, highlight: Int, onDigit:
 @Composable
 fun StrikeMarks(used: Int, limit: Int) {
     val p = LocalPalette.current
+    val label = LocalStrings.current.strikes(used, limit)
     if (limit == 0) {
         if (used > 0) Text("×$used", style = FuseText.Numeric, color = p.danger)
         return
     }
-    Row(horizontalArrangement = Arrangement.spacedBy(5.dp), modifier = Modifier.semantics { contentDescription = "$used of $limit strikes" }) {
+    Row(horizontalArrangement = Arrangement.spacedBy(5.dp), modifier = Modifier.semantics { contentDescription = label }) {
         for (i in 0 until limit) {
             Canvas(Modifier.size(9.dp)) {
                 if (i < used) drawCircle(p.danger) else drawCircle(p.inkFaint, style = Stroke(1.2.dp.toPx()))

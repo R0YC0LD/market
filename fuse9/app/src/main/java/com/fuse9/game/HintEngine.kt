@@ -12,7 +12,7 @@ import com.fuse9.puzzle.Techniques
 enum class HintAction { PLACE, SEAL }
 
 /**
- * A hint is taught in three steps: where to look ([region]), why ([reason], with [focus]
+ * A hint is taught in three steps: where to look ([region]), why ([reasons], with [focus]
  * cells lit), and finally the move itself.
  */
 data class Hint(
@@ -20,8 +20,8 @@ data class Hint(
     val action: HintAction,
     val digit: Int,
     val region: List<Int>,
-    val regionLabel: String,
-    val reason: String,
+    val look: Look,
+    val reasons: List<Reason>,
     val focus: List<Int>,
     val technique: Technique?,
 )
@@ -112,51 +112,44 @@ object HintEngine {
         val digit = state.truth.solution[cell]
         val key = if (seal) safetyWhy else (safetyWhy ?: digitWhy)
         val anchor = key ?: digitWhy ?: last
-        val (region, label) = regionOf(anchor, cell)
-        val reason = if (seal) {
-            sealReason(safetyWhy)
-        } else {
-            listOf(safetyReason(state, cell, safetyWhy), digitReason(cell, digit, digitWhy)).joinToString(" ")
-        }
+        val (region, look) = regionOf(anchor, cell)
+        val reasons = if (seal) listOf(sealReason(safetyWhy)) else listOf(safetyReason(state, cell, safetyWhy), digitReason(digit, digitWhy))
         val focus = ((safetyWhy?.focus ?: emptyList()) + (digitWhy?.focus ?: emptyList()) + cell).distinct()
-        return Hint(cell, if (seal) HintAction.SEAL else HintAction.PLACE, digit, region, label, reason, focus, anchor?.technique)
+        return Hint(cell, if (seal) HintAction.SEAL else HintAction.PLACE, digit, region, look, reasons, focus, anchor?.technique)
     }
 
-    private fun regionOf(d: Deduction?, cell: Int): Pair<List<Int>, String> = when {
-        d == null -> Grid.UNITS[Grid.boxUnit(cell)].toList() to "Look around ${Grid.unitName(Grid.boxUnit(cell))}."
-        d.unit >= 0 -> Grid.UNITS[d.unit].toList() to "Look at ${Grid.unitName(d.unit)}."
+    private fun regionOf(d: Deduction?, cell: Int): Pair<List<Int>, Look> = when {
+        d == null -> Grid.UNITS[Grid.boxUnit(cell)].toList() to Look(LookAt.AROUND_BOX, unit = Grid.boxUnit(cell))
+        d.unit >= 0 -> Grid.UNITS[d.unit].toList() to Look(LookAt.UNIT, unit = d.unit)
         d.source >= 0 && d.technique.name.startsWith("COUNT") ->
-            (Grid.NEIGHBORS[d.source].toList() + d.source) to "Look at the dots in ${Grid.cellName(d.source)}."
-        else -> d.focus to "Look at the seals you have found."
+            (Grid.NEIGHBORS[d.source].toList() + d.source) to Look(LookAt.DOTS, cell = d.source)
+        else -> d.focus to Look(LookAt.SEALS)
     }
 
-    private fun sealReason(d: Deduction?): String = when (d?.technique) {
-        Technique.UNIT_LAST_CELL -> "${cap(Grid.unitName(d.unit))} needs one seal, and every other cell in it is safe."
-        Technique.COUNT_FULL -> "The dots at ${Grid.cellName(d.source)} need every hidden neighbour to be a seal."
-        Technique.SEAL_DIGIT_HOME -> "Some seal must hide the ${d.digit}. This is the only cell left that can."
-        Technique.REGION_SUBSET, Technique.REGION_OVERLAP -> "Compare the overlapping dots: their seals can only fit here."
-        else -> "This cell has to be a seal."
+    private fun sealReason(d: Deduction?): Reason = when (d?.technique) {
+        Technique.UNIT_LAST_CELL -> Reason(Why.UNIT_LAST_CELL, unit = d.unit)
+        Technique.COUNT_FULL -> Reason(Why.COUNT_FULL, cell = d.source)
+        Technique.SEAL_DIGIT_HOME -> Reason(Why.SEAL_HOME, digit = d.digit)
+        Technique.REGION_SUBSET, Technique.REGION_OVERLAP -> Reason(Why.OVERLAP_SEAL)
+        else -> Reason(Why.MUST_BE_SEAL)
     }
 
-    private fun safetyReason(state: GameState, cell: Int, d: Deduction?): String = when (d?.technique) {
-        null -> if (state.cells[cell].safe) "It's proven safe." else "It's safe."
-        Technique.UNIT_SEALED -> "${cap(Grid.unitName(d.unit))} already has its seal, so this is safe."
-        Technique.COUNT_SATISFIED -> "The dots at ${Grid.cellName(d.source)} are satisfied, so this is safe."
-        Technique.SEALED_DIGIT_SAFE -> "Its digit is already sealed, and a digit hides only once — safe."
-        Technique.SEAL_DIGIT_POINTING -> "The ${d.digit}-seal lies in ${Grid.unitName(d.unit)}; this cell can't be ${d.digit}, so it's safe."
-        Technique.REGION_SUBSET, Technique.REGION_OVERLAP -> "Overlapping dots leave no room for a seal here."
-        else -> "It's safe."
+    private fun safetyReason(state: GameState, cell: Int, d: Deduction?): Reason = when (d?.technique) {
+        null -> Reason(if (state.cells[cell].safe) Why.PROVEN_SAFE else Why.SAFE)
+        Technique.UNIT_SEALED -> Reason(Why.UNIT_SEALED, unit = d.unit)
+        Technique.COUNT_SATISFIED -> Reason(Why.COUNT_SATISFIED, cell = d.source)
+        Technique.SEALED_DIGIT_SAFE -> Reason(Why.SEALED_DIGIT_SAFE)
+        Technique.SEAL_DIGIT_POINTING -> Reason(Why.SEAL_POINTING, unit = d.unit, digit = d.digit)
+        Technique.REGION_SUBSET, Technique.REGION_OVERLAP -> Reason(Why.OVERLAP_SAFE)
+        else -> Reason(Why.SAFE)
     }
 
-    private fun digitReason(cell: Int, digit: Int, d: Deduction?): String = when (d?.technique) {
-        Technique.HIDDEN_SINGLE -> "In ${Grid.unitName(d.unit)}, $digit has nowhere else to go."
-        Technique.SEAL_DIGIT_HOME -> "The $digit-seal has only this home."
-        Technique.LOCKED_CANDIDATES, Technique.NAKED_SUBSET, Technique.HIDDEN_PAIR ->
-            "After narrowing ${Grid.unitName(d.unit)}, only $digit fits."
-        else -> "Only $digit fits: its row, column and box hold the rest."
+    private fun digitReason(digit: Int, d: Deduction?): Reason = when (d?.technique) {
+        Technique.HIDDEN_SINGLE -> Reason(Why.HIDDEN_SINGLE, unit = d.unit, digit = digit)
+        Technique.SEAL_DIGIT_HOME -> Reason(Why.SEAL_HOME_DIGIT, digit = digit)
+        Technique.LOCKED_CANDIDATES, Technique.NAKED_SUBSET, Technique.HIDDEN_PAIR -> Reason(Why.NARROWED, unit = d.unit, digit = digit)
+        else -> Reason(Why.ONLY_FIT, digit = digit)
     }
-
-    private fun cap(s: String) = s.replaceFirstChar { it.uppercase() }
 
     private const val MAX_STEPS = 400
 }

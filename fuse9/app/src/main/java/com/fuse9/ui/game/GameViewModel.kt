@@ -37,6 +37,13 @@ sealed interface StartRequest {
     data class Seeded(val seed: Long, val difficulty: Difficulty) : StartRequest
 }
 
+/** What the line under the board says; worded by the UI in the player's language. */
+sealed interface Caption {
+    data class LookHere(val look: com.fuse9.game.Look) : Caption
+    data class Because(val reasons: List<com.fuse9.game.Reason>) : Caption
+    data class Guide(val line: TutorialGuide.Line) : Caption
+}
+
 data class DebugUi(val open: Boolean = false, val solution: Boolean = false, val seals: Boolean = false, val candidates: Boolean = false)
 
 data class GameUi(
@@ -45,7 +52,7 @@ data class GameUi(
     val paused: Boolean = false,
     val hint: Hint? = null,
     val hintLevel: Int = 0,
-    val caption: String? = null,
+    val caption: Caption? = null,
     val captionCells: Set<Int> = emptySet(),
     val captionTarget: Int = -1,
     val highlightDigit: Int = 0,
@@ -181,14 +188,14 @@ class GameViewModel(private val app: AppContainer) : ViewModel() {
         if (current == null) {
             val hint = HintEngine.find(g) ?: return
             feedback.hint()
-            _ui.update { it.copy(hint = hint, hintLevel = 1, caption = hint.regionLabel, captionCells = emptySet(), captionTarget = -1, game = g.copy(hintsUsed = g.hintsUsed + 1)) }
+            _ui.update { it.copy(hint = hint, hintLevel = 1, caption = Caption.LookHere(hint.look), captionCells = emptySet(), captionTarget = -1, game = g.copy(hintsUsed = g.hintsUsed + 1)) }
             fx.ambient = true
             return
         }
         when (s.hintLevel) {
             1 -> {
                 feedback.hint()
-                _ui.update { it.copy(hintLevel = 2, caption = current.reason) }
+                _ui.update { it.copy(hintLevel = 2, caption = Caption.Because(current.reasons)) }
             }
             else -> {
                 fx.ambient = false
@@ -252,13 +259,13 @@ class GameViewModel(private val app: AppContainer) : ViewModel() {
         val state = _ui.value.game ?: return
         if (_ui.value.hint != null) return
         val line = g.line(state)
-        _ui.update { it.copy(caption = line?.text, captionCells = line?.cells ?: emptySet(), captionTarget = line?.target ?: -1) }
+        _ui.update { it.copy(caption = line?.let { l -> Caption.Guide(l) }, captionCells = line?.cells ?: emptySet(), captionTarget = line?.target ?: -1) }
         if (g.finished) {
             app.stats.markTutorialDone()
             if (g.step == TutorialGuide.Step.DONE) viewModelScope.launch {
                 delay(4500)
                 g.dismissDone()
-                _ui.update { if (it.caption == line?.text) it.copy(caption = null, captionCells = emptySet()) else it }
+                _ui.update { if (line != null && it.caption == Caption.Guide(line)) it.copy(caption = null, captionCells = emptySet()) else it }
             }
         }
     }

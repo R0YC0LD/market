@@ -1,12 +1,7 @@
 package com.fuse9.game
 
-/** The single word a finished board earns. */
-enum class Verdict(val word: String, val line: String) {
-    CLEAN("Clean", "No strikes, no hints."),
-    SHARP("Sharp", "Almost spotless."),
-    SOLVED("Solved", "Every seal found."),
-    UNSOLVED("Unsealed", "The board held this time."),
-}
+/** The single word a finished board earns; the UI words it. */
+enum class Verdict { CLEAN, SHARP, SOLVED, UNSOLVED }
 
 data class Summary(
     val verdict: Verdict,

@@ -68,12 +68,13 @@ fun FuseRoot(app: AppContainer) {
                     }
                     Screen.MENU -> {
                         val today = LocalDate.now()
+                        val strings = com.fuse9.ui.i18n.LocalStrings.current
                         val saved by produceState<com.fuse9.game.GameState?>(null, screen) { value = app.saves.load() }
                         MenuScreen(
                             info = MenuInfo(
                                 saved = saved,
                                 dailyDone = today.toString() in stats.dailiesDone,
-                                dailyLabel = "${today.dayOfWeek.name.lowercase().replaceFirstChar { it.uppercase() }} · ${PuzzleSource.dailyDifficulty(today).label}",
+                                dailyLabel = "${strings.dayName(today.dayOfWeek)} · ${strings.difficulty(PuzzleSource.dailyDifficulty(today))}",
                                 streak = app.stats.currentStreak(today),
                             ),
                             onContinue = { play(StartRequest.Continue) },
