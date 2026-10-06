@@ -47,9 +47,10 @@ add another `Strings` object and list it in `AppLanguage`.
 Requirements: JDK 17+, Android SDK with platform 36.
 
 ```bash
-./gradlew :app:assembleDebug      # app/build/outputs/apk/debug/app-debug.apk (id com.fuse9.dev)
+./gradlew :app:assembleDebug      # app/build/outputs/apk/debug/app-debug.apk (id com.r0yc0ld.fuse9.dev)
 ./gradlew :app:installDebug       # on a connected device
-./gradlew :app:assembleRelease    # minified; signed with the debug key for playtesting
+./gradlew :app:bundleRelease     # Play upload: needs keystore.properties (see keystore.properties.example)
+./gradlew :app:assembleRelease    # minified; upload key if configured, else debug key
 ```
 
 ## Tests
@@ -206,6 +207,15 @@ V1 polish → V2 daily (seeded daily is in) → V3 advanced difficulty → V4 co
 V5 stats (basic stats are in) → V6 time modes (`GameMode` already has the slots) →
 V7 custom → V8 sharing (puzzles are fully described by seed and generator version) →
 V9 achievements → V10 seasonal themes.
+
+## Google Play
+
+`play/` holds everything the Play Console asks for: the store listing in English and Turkish
+(titles, descriptions, release notes, a 512 icon, a feature graphic and five 1080×1920 screenshots
+per language), a privacy policy page, and a step-by-step Turkish guide
+(`play/PLAY_CONSOLE_REHBERI.md`) with the answer to every Console form. Re-render the graphics
+with `-Dfuse9.store=/abs/out --tests '*StoreAssets*'`.
+Package name: `com.r0yc0ld.fuse9`.
 
 ## Licences
 

@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -10,12 +12,26 @@ android {
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.fuse9"
+        applicationId = "com.r0yc0ld.fuse9"
         minSdk = 26
         targetSdk = 36
         versionCode = 1
-        versionName = "0.1.0"
+        versionName = "1.0.0"
     }
+
+    // Upload key for Google Play. Lives outside git: copy keystore.properties.example to
+    // keystore.properties and point it at your .jks. Without it, release builds fall back to
+    // the debug key (installable for playtesting, not uploadable to Play).
+    val keystoreFile = rootProject.file("keystore.properties")
+    val upload = if (keystoreFile.exists()) {
+        val props = Properties().apply { keystoreFile.inputStream().use { load(it) } }
+        signingConfigs.create("upload") {
+            storeFile = rootProject.file(props.getProperty("storeFile"))
+            storePassword = props.getProperty("storePassword")
+            keyAlias = props.getProperty("keyAlias")
+            keyPassword = props.getProperty("keyPassword")
+        }
+    } else null
 
     buildTypes {
         debug {
@@ -27,14 +43,17 @@ android {
             isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
             buildConfigField("boolean", "DEBUG_TOOLS", "false")
-            // Signed with the debug key so the release build is installable for playtesting.
-            signingConfig = signingConfigs.getByName("debug")
+            signingConfig = upload ?: signingConfigs.getByName("debug")
         }
     }
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
+    }
+    // Only ship the languages FUSE9 is written in, so Play doesn't list libraries' translations.
+    androidResources {
+        localeFilters += listOf("en", "tr")
     }
     buildFeatures {
         compose = true
@@ -46,6 +65,7 @@ android {
         unitTests.all { test ->
             test.systemProperty("fuse9.screens", System.getProperty("fuse9.screens") ?: "")
             test.systemProperty("fuse9.sfx", System.getProperty("fuse9.sfx") ?: "")
+            test.systemProperty("fuse9.store", System.getProperty("fuse9.store") ?: "")
             // Optional mirror for Robolectric's runtime jar download (e.g. when Maven Central rate-limits).
             (findProperty("robolectricRepo") as String?)?.let { test.systemProperty("robolectric.dependency.repo.url", it) }
         }

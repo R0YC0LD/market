@@ -1,0 +1,26 @@
+FUSE9 is a Sudoku where nine cells are sealed.
+
+Every cell is both a Sudoku cell and part of a minefield. You can't solve one without the other.
+
+THE RULES
+• Fill the 9×9 grid like Sudoku.
+• Nine cells are seals: exactly one in every row, every column and every box.
+• Open cells show, as dots, how many seals touch them.
+• Each seal hides a different digit. Find the 4-seal, and every other 4 on the board is safe.
+
+To open a cell, place its digit. To defuse a seal, hold the cell. Every move is checked as you make it: a wrong one is a strike, and it shows you the truth about that cell.
+
+LOGIC, NOT LUCK
+Every board is generated and then solved by a human-style solver before you see it. If it can't be finished with pure reasoning, it is thrown away. You never have to guess.
+
+FEATURES
+• Five difficulties, from Easy to Master
+• A daily board, the same for everyone, with a streak
+• Classic, Hardcore (one strike) and Zen (no limit) modes
+• Hints that teach: first where to look, then why, then the move
+• Notes, unlimited undo, automatic saving
+• Paper and Graphite themes, high contrast, dots or numbers
+• Original synthesized sounds and gentle haptics
+• English and Turkish
+
+No ads. No accounts. No internet connection needed. No data collected.

@@ -60,7 +60,7 @@ import com.fuse9.ui.i18n.LocalStrings
 import com.fuse9.ui.i18n.Strings
 
 @Composable
-fun GameScreen(vm: GameViewModel, settings: Settings, onExit: () -> Unit) {
+fun GameScreen(vm: GameViewModel, settings: Settings, showDebug: Boolean = BuildConfig.DEBUG_TOOLS, onExit: () -> Unit) {
     val ui by vm.ui.collectAsStateWithLifecycle()
     val p = LocalPalette.current
     LifecycleEventEffect(Lifecycle.Event.ON_STOP) { vm.onBackground() }
@@ -71,7 +71,7 @@ fun GameScreen(vm: GameViewModel, settings: Settings, onExit: () -> Unit) {
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         val game = ui.game
-        Header(vm, game, settings, ui.paused, onExit)
+        Header(vm, game, settings, ui.paused, showDebug, onExit)
         // The board sits low, near the thumb: spare height goes mostly above it, a little below the caption.
         BoxWithConstraints(Modifier.weight(1f).fillMaxWidth()) {
             val fixed = TRACKER_HEIGHT + 10.dp + CAPTION_HEIGHT
@@ -104,11 +104,11 @@ fun GameScreen(vm: GameViewModel, settings: Settings, onExit: () -> Unit) {
         }
         Spacer(Modifier.height(10.dp))
     }
-    if (BuildConfig.DEBUG_TOOLS && ui.debug.open && ui.game != null) DebugPanel(vm, ui)
+    if (showDebug && ui.debug.open && ui.game != null) DebugPanel(vm, ui)
 }
 
 @Composable
-private fun Header(vm: GameViewModel, game: GameState?, settings: Settings, paused: Boolean, onExit: () -> Unit) {
+private fun Header(vm: GameViewModel, game: GameState?, settings: Settings, paused: Boolean, showDebug: Boolean, onExit: () -> Unit) {
     val p = LocalPalette.current
     val t = LocalStrings.current
     val clock by vm.clock.collectAsStateWithLifecycle()
@@ -139,7 +139,7 @@ private fun Header(vm: GameViewModel, game: GameState?, settings: Settings, paus
                 Icon(if (paused) FuseIcons.Play else FuseIcons.Pause, null, tint = p.inkSoft, modifier = Modifier.size(18.dp))
             }
         }
-        if (BuildConfig.DEBUG_TOOLS) IconButtonQuiet(FuseIcons.Bug, "Debug", tint = p.inkFaint, size = 40.dp) { vm.toggleDebug { it.copy(open = !it.open) } }
+        if (showDebug) IconButtonQuiet(FuseIcons.Bug, "Debug", tint = p.inkFaint, size = 40.dp) { vm.toggleDebug { it.copy(open = !it.open) } }
     }
 }
 

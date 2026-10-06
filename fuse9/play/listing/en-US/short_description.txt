@@ -1,0 +1,1 @@
+Sudoku meets Minesweeper: nine sealed cells, pure logic, no guessing.

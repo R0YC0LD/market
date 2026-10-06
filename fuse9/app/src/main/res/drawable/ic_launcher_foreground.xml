@@ -2,23 +2,23 @@
     android:width="108dp" android:height="108dp"
     android:viewportWidth="108" android:viewportHeight="108">
     <!-- Board outline -->
-    <path android:strokeColor="#26251F" android:strokeWidth="2.2"
+    <path android:strokeColor="#26251F" android:strokeWidth="3.4"
         android:pathData="M33,33 L75,33 L75,75 L33,75 Z" />
     <!-- Cell dots -->
     <path android:fillColor="#8A8478"
-        android:pathData="M40,40 m-1.6,0 a1.6,1.6 0 1,0 3.2,0 a1.6,1.6 0 1,0 -3.2,0
-                          M54,40 m-1.6,0 a1.6,1.6 0 1,0 3.2,0 a1.6,1.6 0 1,0 -3.2,0
-                          M68,40 m-1.6,0 a1.6,1.6 0 1,0 3.2,0 a1.6,1.6 0 1,0 -3.2,0
-                          M40,54 m-1.6,0 a1.6,1.6 0 1,0 3.2,0 a1.6,1.6 0 1,0 -3.2,0
-                          M68,54 m-1.6,0 a1.6,1.6 0 1,0 3.2,0 a1.6,1.6 0 1,0 -3.2,0
-                          M40,68 m-1.6,0 a1.6,1.6 0 1,0 3.2,0 a1.6,1.6 0 1,0 -3.2,0
-                          M54,68 m-1.6,0 a1.6,1.6 0 1,0 3.2,0 a1.6,1.6 0 1,0 -3.2,0
-                          M68,68 m-1.6,0 a1.6,1.6 0 1,0 3.2,0 a1.6,1.6 0 1,0 -3.2,0" />
+        android:pathData="M40,40 m-2.2,0 a2.2,2.2 0 1,0 4.4,0 a2.2,2.2 0 1,0 -4.4,0
+                          M54,40 m-2.2,0 a2.2,2.2 0 1,0 4.4,0 a2.2,2.2 0 1,0 -4.4,0
+                          M68,40 m-2.2,0 a2.2,2.2 0 1,0 4.4,0 a2.2,2.2 0 1,0 -4.4,0
+                          M40,54 m-2.2,0 a2.2,2.2 0 1,0 4.4,0 a2.2,2.2 0 1,0 -4.4,0
+                          M68,54 m-2.2,0 a2.2,2.2 0 1,0 4.4,0 a2.2,2.2 0 1,0 -4.4,0
+                          M40,68 m-2.2,0 a2.2,2.2 0 1,0 4.4,0 a2.2,2.2 0 1,0 -4.4,0
+                          M54,68 m-2.2,0 a2.2,2.2 0 1,0 4.4,0 a2.2,2.2 0 1,0 -4.4,0
+                          M68,68 m-2.2,0 a2.2,2.2 0 1,0 4.4,0 a2.2,2.2 0 1,0 -4.4,0" />
     <!-- Centre seal: ring, teeth, core -->
-    <path android:strokeColor="#2F4E7A" android:strokeWidth="2.2"
+    <path android:strokeColor="#2F4E7A" android:strokeWidth="3.4"
         android:pathData="M54,54 m-5,0 a5,5 0 1,0 10,0 a5,5 0 1,0 -10,0" />
-    <path android:strokeColor="#2F4E7A" android:strokeWidth="2.2" android:strokeLineCap="round"
-        android:pathData="M54,45 L54,47 M54,61 L54,63 M45,54 L47,54 M61,54 L63,54" />
+    <path android:strokeColor="#2F4E7A" android:strokeWidth="3.4" android:strokeLineCap="round"
+        android:pathData="M54,44 L54,46.5 M54,61.5 L54,64 M44,54 L46.5,54 M61.5,54 L64,54" />
     <path android:fillColor="#2F4E7A"
-        android:pathData="M54,54 m-1.8,0 a1.8,1.8 0 1,0 3.6,0 a1.8,1.8 0 1,0 -3.6,0" />
+        android:pathData="M54,54 m-2.4,0 a2.4,2.4 0 1,0 4.8,0 a2.4,2.4 0 1,0 -4.8,0" />
 </vector>

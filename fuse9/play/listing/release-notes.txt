@@ -1,0 +1,6 @@
+<tr-TR>
+FUSE9'un ilk sürümü: dokuz mühürlü Sudoku. Beş zorluk, günlük tahta, Klasik / Tek Şans / Zen modları, öğreten ipuçları, Türkçe ve İngilizce.
+</tr-TR>
+<en-US>
+First release of FUSE9: Sudoku with nine sealed cells. Five difficulties, a daily board, Classic / Hardcore / Zen modes, hints that teach, English and Turkish.
+</en-US>

@@ -1,0 +1,26 @@
+FUSE9, dokuz hücresi mühürlü bir Sudoku.
+
+Her hücre hem bir Sudoku hücresi hem de bir mayın tarlasının parçası. Birini çözmeden diğerini çözemezsin.
+
+KURALLAR
+• Tabloyu Sudoku gibi doldur.
+• Dokuz hücre mühürdür: her satırda, her sütunda ve her kutuda tam bir tane.
+• Açık hücreler, kaç mührün değdiğini noktalarla gösterir.
+• Her mühür farklı bir rakam saklar. 4'ün mührünü bul; tahtadaki diğer bütün 4'ler güvenlidir.
+
+Bir hücreyi açmak için rakamını yerleştir. Bir mührü etkisizleştirmek için hücreye basılı tut. Her hamle anında kontrol edilir: yanlış hamle bir hatadır ve o hücrenin gerçeğini gösterir.
+
+ŞANS DEĞİL, MANTIK
+Her tahta üretildikten sonra, sen görmeden önce insan gibi düşünen bir çözücü tarafından çözülür. Saf mantıkla bitirilemeyen tahta atılır. Hiçbir zaman tahmin etmek zorunda kalmazsın.
+
+ÖZELLİKLER
+• Kolay'dan Usta'ya beş zorluk
+• Herkes için aynı günlük tahta ve günlük seri
+• Klasik, Tek Şans (tek hata) ve Zen (sınırsız) modları
+• Öğreten ipuçları: önce nereye bakacağın, sonra nedeni, en son hamle
+• Notlar, sınırsız geri alma, otomatik kayıt
+• Kâğıt ve Grafit temaları, yüksek kontrast, nokta ya da sayı gösterimi
+• Oyuna özel sentezlenmiş sesler ve hafif titreşimler
+• Türkçe ve İngilizce
+
+Reklam yok. Hesap yok. İnternet gerekmez. Hiçbir veri toplanmaz.

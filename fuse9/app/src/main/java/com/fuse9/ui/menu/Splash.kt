@@ -50,11 +50,11 @@ private fun span(t: Float, a: Float, b: Float) = ((t - a) / (b - a)).coerceIn(0f
 
 /** The FUSE9 mark at animation time [t] (0..1); t = 1 is the resting logo. */
 @Composable
-fun LogoMark(t: Float, modifier: Modifier = Modifier) {
+fun LogoMark(t: Float, modifier: Modifier = Modifier, weight: Float = 1f) {
     val p = LocalPalette.current
     Canvas(modifier) {
         val s = size.minDimension
-        val w = 1.6.dp.toPx()
+        val w = 1.6.dp.toPx() * weight
         val edge = span(t, 0f, 0.35f)
         // Outline drawn as one continuous stroke around the square.
         val perimeter = s * 4 * edge
@@ -75,7 +75,7 @@ fun LogoMark(t: Float, modifier: Modifier = Modifier) {
             val c = i % 3
             val center = Offset(c * cell + cell / 2, r * cell + cell / 2)
             if (i == 4) continue
-            drawCircle(p.inkSoft.copy(alpha = local), cell * 0.07f * (0.6f + 0.4f * local), center)
+            drawCircle(p.inkSoft.copy(alpha = local), cell * 0.07f * (0.6f + 0.4f * local) * (1f + (weight - 1f) * 0.25f), center)
         }
         val lock = span(t, 0.55f, 0.8f)
         if (lock > 0f) {
