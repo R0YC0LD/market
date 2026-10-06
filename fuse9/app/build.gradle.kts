@@ -42,6 +42,13 @@ android {
     }
     testOptions {
         unitTests.isReturnDefaultValues = true
+        unitTests.isIncludeAndroidResources = true
+        unitTests.all { test ->
+            test.systemProperty("fuse9.screens", System.getProperty("fuse9.screens") ?: "")
+            test.systemProperty("fuse9.sfx", System.getProperty("fuse9.sfx") ?: "")
+            // Optional mirror for Robolectric's runtime jar download (e.g. when Maven Central rate-limits).
+            (findProperty("robolectricRepo") as String?)?.let { test.systemProperty("robolectric.dependency.repo.url", it) }
+        }
     }
 }
 
@@ -69,4 +76,8 @@ dependencies {
 
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.robolectric)
+    testImplementation(platform(libs.compose.bom))
+    testImplementation(libs.compose.ui.test.junit4)
+    debugImplementation(libs.compose.ui.test.manifest)
 }

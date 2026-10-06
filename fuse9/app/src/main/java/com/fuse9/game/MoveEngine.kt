@@ -117,7 +117,7 @@ class MoveEngine(private val autoCleanNotes: Boolean = true) {
     /** Correct placement or defusal: open the cell, then ripple, unit and win checks. */
     private fun resolve(state: GameState, cell: Int, status: CellStatus, event: GameEvent): Outcome {
         val digit = state.truth.solution[cell]
-        var next = state.withCell(cell, Cell(status = status))
+        var next = state.withCell(cell, Cell(status = status)).copy(trail = state.trail + cell)
         if (autoCleanNotes) next = clearNoteFromPeers(next, cell, digit)
         val streak = next.stats.streak + 1
         next = next.copy(stats = next.stats.let {
@@ -152,6 +152,7 @@ class MoveEngine(private val autoCleanNotes: Boolean = true) {
         var next = state.withCell(cell, updated).copy(
             mistakes = state.mistakes + 1,
             exposed = (state.exposed + cell).distinct(),
+            trail = if (status != null) state.trail + cell else state.trail,
             stats = stat(state.stats).copy(streak = 0),
         )
         if (status != null && autoCleanNotes) next = clearNoteFromPeers(next, cell, state.truth.solution[cell])

@@ -56,7 +56,11 @@ object HintEngine {
         return k
     }
 
-    fun find(state: GameState): Hint? {
+    /**
+     * [prefer] = SEAL keeps reasoning until a defusal is provable (used by the tutorial to
+     * teach seals); otherwise the first provable move wins.
+     */
+    fun find(state: GameState, prefer: HintAction? = null): Hint? {
         if (state.isOver) return null
         val k = visibleKnowledge(state)
         val digitWhy = arrayOfNulls<Deduction>(Grid.CELLS)
@@ -64,9 +68,10 @@ object HintEngine {
         var last: Deduction? = null
         repeat(MAX_STEPS) {
             Techniques.eliminate(k)
-            val move = pickMove(k, state.selected)
+            val move = pickMove(k, state.selected, prefer)
             if (move >= 0) return build(state, k, move, digitWhy[move], safetyWhy[move], last)
-            val d = ORDER.firstNotNullOfOrNull { t -> Techniques.find(t, k).firstOrNull { applies(k, it) } } ?: return null
+            val d = ORDER.firstNotNullOfOrNull { t -> Techniques.find(t, k).firstOrNull { applies(k, it) } }
+                ?: return if (prefer != null) find(state, null) else null
             for (e in d.effects) {
                 if (!FusionSolver.applyEffect(k, e)) continue
                 when (e.type) {
@@ -85,11 +90,16 @@ object HintEngine {
     }
 
     /** Prefers the provable move nearest to where the player is already looking. */
-    private fun pickMove(k: Knowledge, selected: Int): Int {
+    private fun pickMove(k: Knowledge, selected: Int, prefer: HintAction?): Int {
         var best = -1
         var bestDist = Int.MAX_VALUE
         for (c in 0 until Grid.CELLS) {
-            if (!k.canPlace(c) && !k.canSeal(c)) continue
+            val ok = when (prefer) {
+                HintAction.SEAL -> k.canSeal(c)
+                HintAction.PLACE -> k.canPlace(c)
+                null -> k.canPlace(c) || k.canSeal(c)
+            }
+            if (!ok) continue
             val dist = if (selected < 0) c else
                 maxOf(kotlin.math.abs(Grid.row(c) - Grid.row(selected)), kotlin.math.abs(Grid.col(c) - Grid.col(selected)))
             if (dist < bestDist) { best = c; bestDist = dist }

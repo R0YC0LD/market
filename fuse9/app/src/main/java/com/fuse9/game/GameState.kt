@@ -72,6 +72,8 @@ data class GameState(
     /** Cells whose truth a strike exposed; re-applied after undo. */
     val exposed: List<Int> = emptyList(),
     val tutorial: Boolean = false,
+    /** Cells in the order they were resolved — drives the result-screen replay. */
+    val trail: List<Int> = emptyList(),
 ) {
     val truth get() = puzzle.truth
 
