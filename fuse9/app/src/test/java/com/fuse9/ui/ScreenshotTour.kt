@@ -137,4 +137,36 @@ class ScreenshotTour {
         compose.setContent { FuseTheme(app.settings.settings.value) { SettingsScreen(app.settings.settings.value, {}, {}) } }
         shot("08_settings")
     }
+
+    @Test fun tutorialBoard() {
+        val vm = GameViewModel(app)
+        vm.start(com.fuse9.ui.game.StartRequest.Tutorial)
+        compose.setContent { FuseTheme(app.settings.settings.value) { GameScreen(vm, app.settings.settings.value) {} } }
+        compose.waitUntil(5_000) { vm.ui.value.game != null }
+        shot("09_tutorial_start")
+        val g = vm.ui.value.game!!
+        vm.onCellTap(g.puzzle.givens.first())
+        compose.mainClock.autoAdvance = false
+        compose.mainClock.advanceTimeBy(300)
+        shot("10_tutorial_step2")
+    }
+
+    /** Frames from the middle of the defuse, trip and win animations. */
+    @Test fun motionFrames() {
+        val vm = GameViewModel(app)
+        app.saves.saveBlocking(midGame())
+        vm.start(com.fuse9.ui.game.StartRequest.Continue)
+        compose.setContent { FuseTheme(app.settings.settings.value) { GameScreen(vm, app.settings.settings.value) {} } }
+        compose.waitUntil(5_000) { vm.ui.value.game != null }
+        compose.mainClock.autoAdvance = false
+        val g = vm.ui.value.game!!
+        val seal = g.puzzle.seals.first { !g.cells[it].status.isResolved }
+        vm.onCellLongPress(seal)
+        compose.mainClock.advanceTimeBy(160)
+        shot("11_defuse_160ms")
+        val other = g.puzzle.seals.last { !g.cells[it].status.isResolved && it != seal }
+        vm.onCellTap(other); vm.onDigit(1)
+        compose.mainClock.advanceTimeBy(200)
+        shot("12_trip_200ms")
+    }
 }

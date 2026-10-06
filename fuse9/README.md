@@ -3,6 +3,13 @@
 A Sudoku × Minesweeper puzzle for Android, where every cell is both a Sudoku cell and part
 of the minefield. Kotlin, Jetpack Compose, fully offline.
 
+<p>
+<img src="docs/10_tutorial_step2.png" width="200" alt="First board, guided">
+<img src="docs/03_game_light.png" width="200" alt="Mid-game, Paper theme">
+<img src="docs/04_game_dark.png" width="200" alt="Mid-game, Graphite theme">
+<img src="docs/06_result.png" width="200" alt="Result with solve replay">
+</p>
+
 ## The rules
 
 1. Fill the 9×9 grid like Sudoku.

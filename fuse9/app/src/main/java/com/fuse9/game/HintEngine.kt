@@ -126,26 +126,26 @@ object HintEngine {
         d == null -> Grid.UNITS[Grid.boxUnit(cell)].toList() to "Look around ${Grid.unitName(Grid.boxUnit(cell))}."
         d.unit >= 0 -> Grid.UNITS[d.unit].toList() to "Look at ${Grid.unitName(d.unit)}."
         d.source >= 0 && d.technique.name.startsWith("COUNT") ->
-            (Grid.NEIGHBORS[d.source].toList() + d.source) to "Look at the count in ${Grid.cellName(d.source)}."
+            (Grid.NEIGHBORS[d.source].toList() + d.source) to "Look at the dots in ${Grid.cellName(d.source)}."
         else -> d.focus to "Look at the seals you have found."
     }
 
     private fun sealReason(d: Deduction?): String = when (d?.technique) {
         Technique.UNIT_LAST_CELL -> "${cap(Grid.unitName(d.unit))} needs one seal, and every other cell in it is safe."
-        Technique.COUNT_FULL -> "The count in ${Grid.cellName(d.source)} needs every hidden cell beside it to be a seal."
+        Technique.COUNT_FULL -> "The dots at ${Grid.cellName(d.source)} need every hidden neighbour to be a seal."
         Technique.SEAL_DIGIT_HOME -> "Some seal must hide the ${d.digit}. This is the only cell left that can."
-        Technique.REGION_SUBSET, Technique.REGION_OVERLAP -> "Compare the overlapping counts: the seals they need can only fit here."
+        Technique.REGION_SUBSET, Technique.REGION_OVERLAP -> "Compare the overlapping dots: their seals can only fit here."
         else -> "This cell has to be a seal."
     }
 
     private fun safetyReason(state: GameState, cell: Int, d: Deduction?): String = when (d?.technique) {
-        null -> if (state.cells[cell].safe) "It is already proven safe." else "It is safe."
-        Technique.UNIT_SEALED -> "${cap(Grid.unitName(d.unit))} already has its seal, so this cell is safe."
-        Technique.COUNT_SATISFIED -> "The count in ${Grid.cellName(d.source)} is already satisfied, so this cell is safe."
-        Technique.SEALED_DIGIT_SAFE -> "Its digit is already sealed elsewhere, and each digit hides only once, so it is safe."
-        Technique.SEAL_DIGIT_POINTING -> "The ${d.digit}-seal must lie in ${Grid.unitName(d.unit)}, and this cell can't hold a ${d.digit}, so it is safe."
-        Technique.REGION_SUBSET, Technique.REGION_OVERLAP -> "Overlapping counts leave no room for a seal here."
-        else -> "It is safe."
+        null -> if (state.cells[cell].safe) "It's proven safe." else "It's safe."
+        Technique.UNIT_SEALED -> "${cap(Grid.unitName(d.unit))} already has its seal, so this is safe."
+        Technique.COUNT_SATISFIED -> "The dots at ${Grid.cellName(d.source)} are satisfied, so this is safe."
+        Technique.SEALED_DIGIT_SAFE -> "Its digit is already sealed, and a digit hides only once — safe."
+        Technique.SEAL_DIGIT_POINTING -> "The ${d.digit}-seal lies in ${Grid.unitName(d.unit)}; this cell can't be ${d.digit}, so it's safe."
+        Technique.REGION_SUBSET, Technique.REGION_OVERLAP -> "Overlapping dots leave no room for a seal here."
+        else -> "It's safe."
     }
 
     private fun digitReason(cell: Int, digit: Int, d: Deduction?): String = when (d?.technique) {
@@ -153,7 +153,7 @@ object HintEngine {
         Technique.SEAL_DIGIT_HOME -> "The $digit-seal has only this home."
         Technique.LOCKED_CANDIDATES, Technique.NAKED_SUBSET, Technique.HIDDEN_PAIR ->
             "After narrowing ${Grid.unitName(d.unit)}, only $digit fits."
-        else -> "Only $digit fits: the other digits already sit in its row, column or box."
+        else -> "Only $digit fits: its row, column and box hold the rest."
     }
 
     private fun cap(s: String) = s.replaceFirstChar { it.uppercase() }

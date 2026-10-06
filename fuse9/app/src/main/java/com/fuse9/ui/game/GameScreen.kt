@@ -9,6 +9,7 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -39,6 +40,7 @@ import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -68,27 +70,31 @@ fun GameScreen(vm: GameViewModel, settings: Settings, onExit: () -> Unit) {
     ) {
         val game = ui.game
         Header(vm, game, settings, ui.paused, onExit)
-        // The board sits low, near the thumb; spare height opens up above it, not between it and the keys.
-        Column(
-            Modifier.weight(1f).widthIn(max = 560.dp).fillMaxWidth().padding(horizontal = 10.dp),
-            horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Bottom,
-        ) {
-            SealTracker(game)
-            Spacer(Modifier.height(10.dp))
-            Box(Modifier.weight(1f, fill = false), contentAlignment = Alignment.Center) {
-                if (game != null) {
-                    Board(
-                        state = game, fx = vm.fx, overlay = ui.overlay, countStyle = settings.countStyle,
-                        highlightSame = settings.highlightSameDigit,
-                        onTap = vm::onCellTap, onLongPress = vm::onCellLongPress,
-                    )
-                    if (ui.paused) PauseVeil(vm::resume)
-                } else if (ui.loading) {
-                    Preparing()
+        // The board sits low, near the thumb: spare height goes mostly above it, a little below the caption.
+        BoxWithConstraints(Modifier.weight(1f).fillMaxWidth()) {
+            val fixed = TRACKER_HEIGHT + 10.dp + CAPTION_HEIGHT
+            val side = minOf(maxWidth - 20.dp, maxHeight - fixed, 560.dp).coerceAtLeast(120.dp)
+            val spare = (maxHeight - fixed - side).coerceAtLeast(0.dp)
+            Column(Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
+                Spacer(Modifier.height(spare * 0.7f))
+                SealTracker(game)
+                Spacer(Modifier.height(10.dp))
+                Box(Modifier.size(side), contentAlignment = Alignment.Center) {
+                    if (game != null) {
+                        Board(
+                            state = game, fx = vm.fx, overlay = ui.overlay, countStyle = settings.countStyle,
+                            highlightSame = settings.highlightSameDigit,
+                            onTap = vm::onCellTap, onLongPress = vm::onCellLongPress,
+                            modifier = Modifier.fillMaxSize(),
+                        )
+                        if (ui.paused) PauseVeil(vm::resume)
+                    } else if (ui.loading) {
+                        Preparing()
+                    }
                 }
+                Caption(ui.caption)
             }
         }
-        Caption(ui.caption)
         if (game != null) Column(Modifier.widthIn(max = 560.dp)) {
             ToolRow(game.inputMode, ui.hintLevel, vm::onUndo, vm::onErase, vm::onNotes, vm::onSeal, vm::onHint)
             Spacer(Modifier.height(2.dp))
@@ -149,7 +155,7 @@ private fun SealTracker(game: GameState?) {
     }
     val count = found.count { it > 0 }
     Row(
-        Modifier.semantics { contentDescription = "$count of 9 seals found" }.padding(top = 2.dp),
+        Modifier.height(TRACKER_HEIGHT).semantics { contentDescription = "$count of 9 seals found" },
         horizontalArrangement = Arrangement.spacedBy(7.dp), verticalAlignment = Alignment.CenterVertically,
     ) {
         for (d in 1..9) {
@@ -178,10 +184,10 @@ private fun SealTracker(game: GameState?) {
 @Composable
 private fun Caption(text: String?) {
     val p = LocalPalette.current
-    Box(Modifier.fillMaxWidth().height(58.dp).padding(horizontal = 22.dp), contentAlignment = Alignment.Center) {
+    Box(Modifier.fillMaxWidth().height(CAPTION_HEIGHT).padding(horizontal = 20.dp, vertical = 4.dp), contentAlignment = Alignment.Center) {
         AnimatedContent(text, transitionSpec = { fadeIn(tween(160)) togetherWith fadeOut(tween(120)) }, label = "caption") { t ->
             if (t != null) Text(
-                t, style = FuseText.Body, color = p.inkSoft, textAlign = TextAlign.Center, maxLines = 3,
+                t, style = FuseText.Body.copy(fontSize = 14.sp, lineHeight = 19.sp), color = p.inkSoft, textAlign = TextAlign.Center, maxLines = 3,
                 modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite },
             )
         }
@@ -244,6 +250,9 @@ private fun DebugPanel(vm: GameViewModel, ui: GameUi) {
         }
     }
 }
+
+private val TRACKER_HEIGHT = 26.dp
+private val CAPTION_HEIGHT = 66.dp
 
 fun formatTime(ms: Long): String {
     val total = ms / 1000

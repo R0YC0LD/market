@@ -48,10 +48,13 @@ class TutorialGuide {
             Step.FIRST_PLACE, Step.MORE -> {
                 val sealHint = if (step == Step.MORE) HintEngine.find(state, prefer = HintAction.SEAL)?.takeIf { it.action == HintAction.SEAL } else null
                 when {
-                    sealHint != null -> Line("${sealHint.reason} Hold it — or press the seal key — to defuse.", sealHint.focus.toSet(), sealHint.cell)
+                    sealHint != null -> Line("${sealHint.reason} Hold the cell to defuse it.", sealHint.focus.toSet(), sealHint.cell)
                     step == Step.MORE && placements >= 2 -> Line("Nine seals: one in every row, column and box. Watch the dots.")
-                    hint != null && hint.action == HintAction.PLACE ->
-                        Line(if (step == Step.FIRST_PLACE) "${hint.reason} Select it and place ${hint.digit}." else "Placing a digit opens the cell and shows its dots.", hint.focus.toSet(), if (step == Step.FIRST_PLACE) hint.cell else -1)
+                    hint != null && hint.action == HintAction.PLACE && step == Step.FIRST_PLACE -> {
+                        val why = if (state.cells[hint.cell].safe) "Dashed cells are proven safe." else hint.reason.substringBefore(". ") + "."
+                        Line("$why Only ${hint.digit} fits the marked one — place it.", hint.focus.toSet(), hint.cell)
+                    }
+                    hint != null && hint.action == HintAction.PLACE -> Line("Placing a digit opens the cell and shows its dots.")
                     else -> null
                 }
             }
