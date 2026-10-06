@@ -23,8 +23,7 @@ birebir aynı değilse en yakın seçeneği seç.
 
 Play her uygulama için herkese açık bir gizlilik politikası URL'si istiyor.
 
-1. `play/privacy-policy.html` dosyasında `CONTACT_EMAIL` geçen iki yeri (Türkçe ve İngilizce
-   bölümde) kendi iletişim e-postanla değiştir.
+1. `play/privacy-policy.html` iletişim adresi olarak `by599296@gmail.com` içeriyor; düzenlemen gerekmiyor.
 2. Sayfayı herkese açık bir adrese koy. Seçenekler:
    - **GitHub Pages:** repo ayarlarında Pages'i aç; dosyayı yayınlanan dala koy.
      Adres `https://<kullanıcı-adın>.github.io/<repo>/…/privacy-policy.html` biçiminde olur.
@@ -55,7 +54,7 @@ Kontrol panelinde bu görevler listelenir. Her birini aşağıdaki cevaplarla do
 **Hayır, uygulamamda reklam yok.**
 
 ### İçerik derecelendirmesi
-- E-posta: iletişim adresin
+- E-posta: `by599296@gmail.com`
 - Kategori: **Oyun** (bulmaca)
 - Şiddet, korku, cinsellik, kumar, uyuşturucu, küfür: hepsine **Hayır**
 - Kullanıcılar arası iletişim veya içerik paylaşımı: **Hayır**
@@ -90,7 +89,7 @@ Ayarla → Mağaza ayarları:
 - Uygulama/oyun: **Oyun**
 - Kategori: **Bulmaca**
 - Etiketler (isteğe bağlı): Bulmaca, Mantık, Sudoku
-- E-posta: herkese açık iletişim adresin. Web sitesi ve telefon isteğe bağlı.
+- E-posta: `by599296@gmail.com` (mağazada herkese açık görünür). Web sitesi ve telefon isteğe bağlı.
 
 ### Ana mağaza girişi (Türkçe)
 Büyüt → Mağaza girişi → **Ana mağaza girişi**:
@@ -115,7 +114,7 @@ Aynı sayfada **Çevirileri yönet → Kendi çevirilerimi ekle → English (Uni
 > sana da uygulanıyor. Bu yüzden ilk adım kapalı test.
 
 1. Test edin ve yayınlayın → Test → **Kapalı test** → kanal oluştur (ör. "alpha") veya varsayılan kanalı kullan.
-2. **Test kullanıcıları**: e-posta listesi oluştur veya Google Grubu ekle. En az 12 kişi olsun; tercihen 14 gün dolana kadar ekstra birkaç kişi daha ekle, çünkü kimi kişiler düşebiliyor. Geri bildirim URL'si/e-postası ekle.
+2. **Test kullanıcıları**: e-posta listesi oluştur veya Google Grubu ekle. En az 12 kişi olsun; tercihen 14 gün dolana kadar ekstra birkaç kişi daha ekle, çünkü kimi kişiler düşebiliyor. Geri bildirim e-postası: `by599296@gmail.com`.
 3. **Ülkeler/bölgeler**: hepsi (veya istediklerin).
 4. **Yeni sürüm oluştur**:
    - Play Uygulama İmzalama sorulursa **Google tarafından oluşturulan anahtarı kullan**'ı kabul et. Uygulamayı Google imzalar; senin `fuse9-upload.jks` dosyan yalnızca yükleme anahtarıdır.
